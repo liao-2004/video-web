@@ -42,3 +42,34 @@ pnpm build
 ```sh
 pnpm lint
 ```
+```项目结果
+video-web/
+├── src/                  # 源码目录
+│   ├── assets/           # 静态资源（视频/图片/样式）
+│   ├── components/       # 通用组件
+│   ├── pages/            # 页面组件（如：播放页、列表页）
+│   ├── utils/            # 工具函数（如：视频格式处理、时间格式化）
+│   ├── App.vue           # 根组件
+│   └── main.ts           # 入口文件
+├── cypress/              # Cypress E2E 测试目录
+├── vite.config.ts        # Vite 配置文件
+├── package.json          # 依赖与脚本配置
+├── .eslintrc.js          # ESLint 配置
+├── .gitignore            # Git 忽略规则
+├──video server/    #后端文件
+	│    ├── src/
+	│   ├── config/          # 配置文件（数据库/存储/FFmpeg）
+	│   ├── controller/      # 接口控制器（视频/用户）
+	│   ├── service/         # 业务逻辑层（转码/存储/鉴权）
+	│   ├── utils/           # 工具函数（FFmpeg调用/文件处理）
+	│   ├── middleware/      # 中间件（跨域/鉴权/日志）
+	│   ├── model/           # 数据模型（数据库表结构）
+	│   └── app.js           # 服务入口
+	├── uploads/             # 视频上传临时目录
+	├── sql/                 # 数据库初始化脚本
+	├── .env.example         # 配置示例文件
+	├── package.json         # 依赖与脚本
+└── README.md             # 项目说明
+```
+
+

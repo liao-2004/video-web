@@ -1,25 +1,17 @@
-# vue5.7
+# video Web
 
-This template should help get you started developing with Vue 3 in Vite.
+该项目模仿b站，做了个视频管理网站的C端平台
+## 核心特性
+- 现代化前端架构：基于 Vite 构建，开发热更新速度快，生产环境打包体积小
+- 视频核心能力：支持主流视频格式播放/倍速/全屏（根据实际功能调整）
+- 测试保障：集成 Vitest 单元测试 + Cypress E2E 测试，保障功能稳定性
+- 工程化规范：内置 ESLint 代码校验，统一开发规范
 
-## Recommended IDE Setup
+## 环境要求
+- Node.js ≥ 16.0.0（推荐 18.x LTS 版本）
+- npm/yarn/pnpm（推荐 pnpm，性能更优）
+- 现代浏览器（Chrome ≥ 88、Firefox ≥ 85、Safari ≥ 15）
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
 
 ```sh
 pnpm install

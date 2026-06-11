@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
 // 注册接口
-export const userRegisterService = ({ username, password, repassword }) =>
-  request.post('/api/reguser', { username, password, repassword })
+export const userRegisterService = ({ username, password, repassword }) =>{
+  request.post('/api/reguser', { username, password, repassword })}
 
 // 登录接口
 export const userLoginService = ({ username, password }) =>
@@ -17,7 +17,7 @@ export const userUpdateInfoService = ({ id, nickname, email }) =>
 
 // 更新用户头像
 export const userUpdateAvatarService = (avatar) =>
-  request.patch('/my/update/avatar', { avatar })
+  request.patch('/my/update/avatar', avatar)
 
 // 更新用户密码
 export const userUpdatePasswordService = ({ old_pwd, new_pwd, re_pwd }) =>

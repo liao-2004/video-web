@@ -11,19 +11,9 @@ const router = useRouter()
 
 const handleCommand = async (key) => {
   if (key === 'logout') {
-    try {
-      await ElMessageBox.confirm('你确认要进行退出么', '温馨提示', {
-        type: 'warning',
-        confirmButtonText: '确认',
-        cancelButtonText: '取消'
-      })
       userStore.removeToken()
       userStore.setUser({})
       router.push('/login')
-    } catch {
-      // 用户点取消，不执行任何逻辑
-      return
-    }
   } else if (key === 'password' || key === 'avatar') {
     // 跳 /update/avatar、/update/password 独立路由，跳出布局
     router.push(`/update/${key}`)
@@ -64,7 +54,7 @@ const handleCommand = async (key) => {
   align-content: center;
   /* 修正类名拼写background，删掉多余嵌套.header */
   .background-img {
-    background: url('@/assets/logo.png') no-repeat center / contain;
+    background: url('@/assets/logo2.png') no-repeat center / 80px;
     height: 60px;
     width: 140px;
   }

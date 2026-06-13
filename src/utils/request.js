@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
-export const baseURL = 'http://120.27.201.60:3007'
+export const baseURL = 'http://127.0.0.1:3007'
 
 const instance = axios.create({
   baseURL,
@@ -37,7 +37,8 @@ instance.interceptors.response.use(
       router.push('/login')
     }
 
-    ElMessage.error(err.response.data.message || '服务异常')
+    // 网络错误/超时等情况下 err.response 可能为空，做好兜底避免二次崩溃
+    ElMessage.error(err.response?.data?.message || err.message || '服务异常')
     return Promise.reject(err)
   }
 )

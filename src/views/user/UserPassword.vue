@@ -86,7 +86,7 @@ const resetForm = () => {
             <el-input v-model="pwdForm.re_pwd" show-password></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm">修改密码</el-button>
+            <PinkButton @click="submitForm">修改密码</PinkButton>
             <el-button @click="resetForm">重置</el-button>
           </el-form-item>
         </el-form></el-col

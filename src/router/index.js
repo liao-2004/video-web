@@ -17,6 +17,10 @@ const router = createRouter({
           component:()=>import('@/views/video/userVideo.vue')
         },
         {
+          path:'/video/watch/:id',
+          component:()=>import('@/views/video/VideoWatch.vue')
+        },
+        {
           path:'/video/manage',
           component:()=>import('@/views/video/VideoManage.vue')
         },

@@ -63,7 +63,7 @@ const submitForm = async () => {
         <el-input v-model="form.email"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="submitForm">提交修改</el-button>
+        <PinkButton @click="submitForm">提交修改</PinkButton>
       </el-form-item>
     </el-form>
   </page-container>

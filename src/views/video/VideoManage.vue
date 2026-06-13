@@ -20,7 +20,6 @@ const params = ref({
 // 基于params参数，获取视频列表
 const getArticleList = async () => {
   loading.value = true
-  console.log(99999999999999,params.value)
   const res = await artGetListManageService(params.value)
   articleList.value = res.data.data
   total.value = res.data.total
@@ -93,7 +92,7 @@ const onSuccess = (type) => {
 <template>
   <page-container title="视频管理">
     <template #extra>
-      <el-button type="primary" @click="onAddArticle">添加视频</el-button>
+      <PinkButton @click="onAddArticle">添加视频</PinkButton>
     </template>
 
     <!-- 表单区域 -->
@@ -114,7 +113,7 @@ const onSuccess = (type) => {
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button @click="onSearch" type="primary">搜索</el-button>
+        <PinkButton @click="onSearch">搜索</PinkButton>
         <el-button @click="onReset">重置</el-button>
       </el-form-item>
     </el-form>
@@ -141,20 +140,21 @@ const onSuccess = (type) => {
       <!-- 利用作用域插槽 row 可以获取当前行的数据 => v-for 遍历 item -->
       <el-table-column label="操作">
         <template #default="{ row }">
-          <el-button
-            circle
-            plain
-            type="primary"
-            :icon="Edit"
-            @click="onEditArticle(row)"
-          ></el-button>
-          <el-button
-            circle
-            plain
-            type="danger"
-            :icon="Delete"
-            @click="onDeleteArticle(row)"
-          ></el-button>
+          <div class="op-btns">
+            <PinkButton
+              circle
+              plain
+              :icon="Edit"
+              @click="onEditArticle(row)"
+            ></PinkButton>
+            <el-button
+              circle
+              plain
+              type="danger"
+              :icon="Delete"
+              @click="onDeleteArticle(row)"
+            ></el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -178,4 +178,10 @@ const onSuccess = (type) => {
   </page-container>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.op-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+</style>

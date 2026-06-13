@@ -8,14 +8,20 @@ import {
   Crop,
   EditPen,
   SwitchButton,
-  CaretBottom
+  CaretBottom,
+  Moon,
+  Sunny
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import { useUserStore } from '@/stores'
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTheme } from '@/composables/useTheme'
 const userStore = useUserStore()
 const router = useRouter()
+const { isDark } = useTheme()
+// 菜单文字色随主题变化
+const menuTextColor = computed(() => (isDark.value ? '#cfd3dc' : '#1f2329'))
 
 onMounted(() => {
   userStore.getUser()
@@ -23,14 +29,7 @@ onMounted(() => {
 
 const handleCommand = async (key) => {
   if (key === 'logout') {
-    // 退出操作
-    await ElMessageBox.confirm('你确认要进行退出么', '温馨提示', {
-      type: 'warning',
-      confirmButtonText: '确认',
-      cancelButtonText: '取消'
-    })
-
-    // 清除本地的数据 (token + user信息)
+    // 直接退出：清除本地的数据 (token + user信息)
     userStore.removeToken()
     userStore.setUser({})
     router.push('/login')
@@ -58,7 +57,8 @@ const handleCommand = async (key) => {
       <el-menu
         active-text-color="rgb(251, 114, 153)"
         :default-active="$route.path"
-        text-color="#000000"
+        :text-color="menuTextColor"
+        :background-color="'transparent'"
         router
       >
         <el-menu-item index="/video/userVideo">
@@ -104,7 +104,16 @@ const handleCommand = async (key) => {
             userStore.user.nickname || userStore.user.username
           }}</strong>
         </div>
-        <el-dropdown placement="bottom-end" @command="handleCommand">
+        <div class="header-right">
+          <!-- 主题切换：亮色 / 黑夜 -->
+          <el-switch
+            v-model="isDark"
+            :active-action-icon="Moon"
+            :inactive-action-icon="Sunny"
+            inline-prompt
+            style="--el-switch-on-color: #2c2e36; --el-switch-off-color: #fb7299"
+          />
+          <el-dropdown placement="bottom-end" @command="handleCommand">
           <!-- 展示给用户，默认看到的 -->
           <span class="el-dropdown__box">
             <el-avatar :src="userStore.user.user_pic || avatar" />
@@ -129,6 +138,7 @@ const handleCommand = async (key) => {
             </el-dropdown-menu>
           </template>
         </el-dropdown>
+        </div>
       </el-header>
       <el-main>
         <div class="body">
@@ -144,26 +154,33 @@ const handleCommand = async (key) => {
 .layout-container {
   height: 100vh;
   .el-aside {
-    background-color: #fdfdfd;
-    border:1px rgb(228, 231, 237) solid;
+    background-color: var(--app-surface);
+    border: 1px var(--app-border) solid;
     &__logo {
       height: 120px;
-      background: url('@/assets/logo.png') no-repeat center / 240px auto;
+      background: url('@/assets/logo2.png') no-repeat center / 160px auto;
     }
     .el-menu {
       border-right: none;
+      background-color: transparent;
     }
   }
   .el-header {
-    background-color: #fff;
+    background-color: var(--app-surface);
+    border-bottom: 1px solid var(--app-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
     .el-dropdown__box {
       display: flex;
       align-items: center;
       .el-icon {
-        color: #999;
+        color: var(--app-text-mute);
         margin-left: 10px;
       }
 
@@ -173,12 +190,17 @@ const handleCommand = async (key) => {
       }
     }
   }
+  .el-main {
+    background-color: var(--app-bg);
+  }
   .el-footer {
+    background-color: var(--app-surface);
+    border-top: 1px solid var(--app-border);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px;
-    color: #666;
+    color: var(--app-text-sub);
   }
 }
 </style>

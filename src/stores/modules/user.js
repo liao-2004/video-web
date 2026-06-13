@@ -22,7 +22,6 @@ export const useUserStore = defineStore(
     }
     const setUser = (obj) => {
       user.value = obj
-      user.value.user_pic=import.meta.url+user.value.user_pic
     }
 
     return {

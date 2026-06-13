@@ -51,20 +51,21 @@ const onSuccess = () => {
       <el-table-column label="操作" width="150">
         <!-- row 就是 channelList 的一项， $index 下标 -->
         <template #default="{ row, $index }">
-          <el-button
-            :icon="Edit"
-            circle
-            plain
-            type="primary"
-            @click="onEditChannel(row, $index)"
-          ></el-button>
-          <el-button
-            :icon="Delete"
-            circle
-            plain
-            type="danger"
-            @click="onDelChannel(row, $index)"
-          ></el-button>
+          <div class="op-btns">
+            <PinkButton
+              :icon="Edit"
+              circle
+              plain
+              @click="onEditChannel(row, $index)"
+            ></PinkButton>
+            <el-button
+              :icon="Delete"
+              circle
+              plain
+              type="danger"
+              @click="onDelChannel(row, $index)"
+            ></el-button>
+          </div>
         </template>
       </el-table-column>
 
@@ -78,4 +79,9 @@ const onSuccess = () => {
 </template>
 
 <style lang="scss" scoped>
+.op-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 </style>

@@ -13,17 +13,6 @@ const formModel = ref({
   password: '',
   repassword: ''
 })
-// 整个表单的校验规则
-// 1. 非空校验 required: true      message消息提示，  trigger触发校验的时机 blur change
-// 2. 长度校验 min:xx, max: xx
-// 3. 正则校验 pattern: 正则规则    \S 非空字符
-// 4. 自定义校验 => 自己写逻辑校验 (校验函数)
-//    validator: (rule, value, callback)
-//    (1) rule  当前校验规则相关的信息
-//    (2) value 所校验的表单元素目前的表单值
-//    (3) callback 无论成功还是失败，都需要 callback 回调
-//        - callback() 校验成功
-//        - callback(new Error(错误信息)) 校验失败
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -46,11 +35,10 @@ const rules = {
     },
     {
       validator: (rule, value, callback) => {
-        // 判断 value 和 当前 form 中收集的 password 是否一致
         if (value !== formModel.value.password) {
           callback(new Error('两次输入密码不一致'))
         } else {
-          callback() // 就算校验成功，也需要callback
+          callback()
         }
       },
       trigger: 'blur'
@@ -59,7 +47,6 @@ const rules = {
 }
 
 const register = async () => {
-  // 注册成功之前，先进行校验，校验成功 → 请求，校验失败 → 自动提示
   await form.value.validate()
   await userRegisterService(formModel.value)
   ElMessage.success('注册成功')
@@ -87,26 +74,19 @@ watch(isRegister, () => {
 </script>
 
 <template>
-  <!-- 
-    1. 结构相关
-      el-row表示一行，一行分成24份 
-       el-col表示列  
-       (1) :span="12"  代表在一行中，占12份 (50%)
-       (2) :span="6"   表示在一行中，占6份  (25%)
-       (3) :offset="3" 代表在一行中，左侧margin份数
+  <!-- 登录 / 注册：左侧品牌展示，右侧表单（校验规则见 rules） -->
+  <div class="login-page">
+    <div class="login-card">
+      <!-- 左侧品牌展示 -->
+      <div class="brand-panel">
+        <div class="brand-inner">
+          <div class="illo"></div>
+          <h2>欢迎来到视频管理平台</h2>
+        </div>
+      </div>
 
-       el-form 整个表单组件
-       el-form-item 表单的一行 （一个表单域）
-       el-input 表单元素（输入框）
-    2. 校验相关
-       (1) el-form => :model="ruleForm"      绑定的整个form的数据对象 { xxx, xxx, xxx }
-       (2) el-form => :rules="rules"         绑定的整个rules规则对象  { xxx, xxx, xxx }
-       (3) 表单元素 => v-model="ruleForm.xxx" 给表单元素，绑定form的子属性
-       (4) el-form-item => prop配置生效的是哪个校验规则 (和rules中的字段要对应)
-  -->
-  <el-row class="login-page">
-    <el-col :span="6" :offset="4" class="bg"></el-col>
-    <el-col :span="6" :offset="1" class="form">
+      <!-- 右侧表单 -->
+      <div class="form-panel">
       <!-- 注册相关表单 -->
       <el-form
         :model="formModel"
@@ -143,14 +123,9 @@ watch(isRegister, () => {
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button
-            @click="register"
-            class="button"
-            type="primary"
-            auto-insert-space
-          >
+          <PinkButton @click="register" class="button">
             注册
-          </el-button>
+          </PinkButton>
         </el-form-item>
         <el-form-item class="flex">
           <el-link type="info" :underline="false" @click="isRegister = false">
@@ -193,13 +168,7 @@ watch(isRegister, () => {
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button
-            @click="login"
-            class="button"
-            type="primary"
-            auto-insert-space
-            >登录</el-button
-          >
+          <PinkButton @click="login" class="button">登录</PinkButton>
         </el-form-item>
         <el-form-item class="flex">
           <el-link type="info" :underline="false" @click="isRegister = true">
@@ -207,34 +176,160 @@ watch(isRegister, () => {
           </el-link>
         </el-form-item>
       </el-form>
-    </el-col>
-  </el-row>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .login-page {
-  height: 98vh;
-  background-color: #fff;
-  .bg {
-    background: url('@/assets/bilibili.png') no-repeat 60% center / 100% auto;
-    border-radius: 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fff1f5 0%, #ffe1ec 45%, #ffd2e3 100%);
+
+  /* 两团柔和的粉色光斑作装饰 */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.55;
+    z-index: 0;
   }
-  .form {
+  &::before {
+    width: 420px;
+    height: 420px;
+    top: -120px;
+    left: -100px;
+    background: #fb7299;
+  }
+  &::after {
+    width: 360px;
+    height: 360px;
+    bottom: -120px;
+    right: -80px;
+    background: #ff9bbb;
+  }
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 900px;
+  max-width: 100%;
+  min-height: 540px;
+  background: var(--app-surface, #ffffff);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(251, 114, 153, 0.28);
+}
+
+/* 左侧品牌展示栏 */
+.brand-panel {
+  flex: 1.05;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 36px;
+  color: #fff;
+  background: linear-gradient(160deg, #fb7299 0%, #ff9bbb 100%);
+  text-align: center;
+
+  .brand-inner {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    gap: 14px;
     user-select: none;
-    .title {
-      margin: 0 auto;
-    }
-    .button {
-      width: 100%;
-    }
-    .flex {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-    }
+  }
+  .illo {
+    width: 240px;
+    height: 220px;
+    background: url('@/assets/bilibili.png') no-repeat center / contain;
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.18));
+    animation: float 4s ease-in-out infinite;
+  }
+  h2 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.92;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* 右侧表单栏 */
+.form-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 52px;
+  user-select: none;
+
+  h1 {
+    margin: 0 0 24px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--app-text, #1f2329);
+  }
+
+  /* 输入框：更圆润、聚焦粉色描边 */
+  :deep(.el-input__wrapper) {
+    border-radius: 12px;
+    padding: 4px 14px;
+    box-shadow: 0 0 0 1px var(--app-border, #e4e7ed) inset;
+    transition: box-shadow 0.2s ease;
+  }
+  :deep(.el-input__wrapper.is-focus),
+  :deep(.el-input__wrapper:hover) {
+    box-shadow: 0 0 0 1px var(--bili-pink, #fb7299) inset;
+  }
+
+  .button {
+    width: 100%;
+    margin-top: 4px;
+  }
+  .flex {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* 窄屏时隐藏左侧品牌栏，表单铺满 */
+@media (max-width: 768px) {
+  .login-card {
+    width: 100%;
+    min-height: auto;
+  }
+  .brand-panel {
+    display: none;
+  }
+  .form-panel {
+    padding: 40px 28px;
   }
 }
 </style>

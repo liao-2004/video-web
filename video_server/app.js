@@ -34,7 +34,7 @@ app.use('/my/video', videoRouter)
 
 app.use((err, req, res, next) => {
   // 验证失败导致的错误
-  if (err instanceof joi.ValidationError) return res.cc(1,err)
+  if (err instanceof joi.ValidationError) return res.cc(err, 1)
   // 身份认证失败后的错误
   if (err.name === 'UnauthorizedError') return res.cc('身份认证失败！')
   // 未知的错误

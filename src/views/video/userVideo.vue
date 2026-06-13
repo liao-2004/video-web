@@ -1,7 +1,16 @@
 <script setup>
     import { ref, nextTick } from 'vue'
+    import { useRouter } from 'vue-router'
+    import { VideoPlay } from '@element-plus/icons-vue'
     import { artGetChannelsService, artGetListService } from '../../api/video'
     import { baseURL } from '@/utils/request'
+
+    const router = useRouter()
+    // 点击卡片跳转到站内观看页
+    const goWatch = (item) => {
+      if (item.id == null) return
+      router.push(`/video/watch/${item.id}`)
+    }
 
     const loading = ref(false)      // 是否正在加载
     const finished = ref(false)     // 是否已全部加载完
@@ -115,13 +124,22 @@
                 v-for="(item, idx) in video_data"
                 :key="item.id ?? idx"
                 class="card"
+                @click="goWatch(item)"
               >
                 <div class="crad-img-box">
                   <img class="card-img" :src="baseURL + item.cover_img" alt="" />
+                  <!-- 悬浮播放按钮 -->
+                  <div class="play-mask">
+                    <el-icon :size="40"><VideoPlay /></el-icon>
+                  </div>
+                  <!-- 是否含播放源标记 -->
                 </div>
                 <div class="card-font">
                   <p class="card-title">{{ item.title }}</p>
                   <p class="card-content">{{ item.content }}</p>
+                  <p class="card-author">
+                    UP：{{ item.nickname || item.username || '匿名' }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -136,19 +154,20 @@
 
     <style scoped>
     .body {
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow-card);
+      border-radius: var(--radius-md);
       height: 75vh;
-      background-color: rgb(255, 255, 255);
+      background-color: var(--app-surface);
     }
     .title-box {
-      border-bottom: 1px solid rgb(228, 231, 237);
+      border-bottom: 1px solid var(--app-border);
       height: 13%;
       display: flex;
       align-items: center;
       justify-content: start;
     }
     .title {
-      color: rgb(251, 114, 153);
+      color: var(--bili-pink);
       font-size: 24px;
       font-weight: 700;
       margin: 20px;
@@ -160,11 +179,11 @@
     }
     .cate-obj { cursor: pointer; }
     .newCate {
-      color: rgb(251, 114, 153);
-      border-bottom: 3px solid rgb(251, 114, 153);
+      color: var(--bili-pink);
+      border-bottom: 3px solid var(--bili-pink);
     }
     .oldCate {
-      color: black;
+      color: var(--app-text-sub);
       border-bottom: 0;
     }
 
@@ -186,35 +205,86 @@
       padding: 10px;
     }
     .card {
-      height: 190px;
+      height: 215px;
       width: 240px;
       cursor: pointer;
       transition: all 0.3s ease;
     }
+    .card:hover { transform: translateY(-4px); }
     .crad-img-box {
-      height: 68%;
+      position: relative;
+      height: 60%;
       width: 100%;
       overflow: hidden;
       border-radius: 8px;
-      transition: transform 0.3s ease;
     }
     .card-img {
       height: 100%;
       width: 100%;
       border-radius: 8px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
     }
-    .crad-img-box:hover { transform: scale(1.05); }
+    .crad-img-box:hover .card-img { transform: scale(1.08); }
+
+    /* 悬浮播放遮罩 */
+    .play-mask {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .crad-img-box:hover .play-mask { opacity: 1; }
+
+    /* 可播放角标 */
+    .badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: #fff;
+      background: rgba(251, 114, 153, 0.9);
+      border-radius: 4px;
+    }
+
     .card-font {
-      line-height: 18px;
-      height: 32%;
-      color: black;
+      line-height: 20px;
+      height: 40%;
+      padding-top: 6px;
+      color: var(--app-text);
+    }
+    .card-title {
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin: 0;
+    }
+    .card-content {
+      color: var(--app-text-mute);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin: 2px 0;
+    }
+    .card-author {
+      color: var(--app-text-mute);
+      font-size: 12px;
+      margin: 0;
     }
     .card-title:hover,
-    .card-content:hover { color: rgb(251, 114, 153); }
+    .card-content:hover { color: var(--bili-pink); }
 
     .tip {
       text-align: center;
-      color: #999;
+      color: var(--app-text-mute);
       padding: 12px 0;
     }
     </style>

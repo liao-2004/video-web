@@ -85,7 +85,7 @@ defineExpose({
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="onSubmit"> 确认 </el-button>
+        <PinkButton @click="onSubmit"> 确认 </PinkButton>
       </span>
     </template>
   </el-dialog>

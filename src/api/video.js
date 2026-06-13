@@ -1,4 +1,19 @@
 import request from '@/utils/request'
+
+// 视频文件：上传到后端 uploads 目录，返回保存后的相对地址 url
+// file: 原生 File 对象；onProgress: 上传进度回调 (0~100)
+export const videoUploadService = (file, onProgress) => {
+  const fd = new FormData()
+  fd.append('video', file)
+  return request.post('/my/video/upload', fd, {
+    timeout: 0, // 视频较大，不限制超时
+    onUploadProgress: (e) => {
+      if (onProgress && e.total) {
+        onProgress(Math.round((e.loaded / e.total) * 100))
+      }
+    }
+  })
+}
 // 分类：获取视频分类
 export const artGetChannelsService = () => request.get('/my/cate/cates')
 // 分类：添加视频分类

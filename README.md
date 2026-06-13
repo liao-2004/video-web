@@ -58,7 +58,6 @@ video-web/
 	│   ├── model/           # 数据模型（数据库表结构）
 	│   └── app.js           # 服务入口
 	├── uploads/             # 视频上传临时目录
-	├── sql/                 # 数据库初始化脚本
 	├── .env.example         # 配置示例文件
 	├── package.json         # 依赖与脚本
 └── README.md             # 项目说明

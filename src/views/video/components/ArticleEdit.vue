@@ -1,13 +1,12 @@
 <script setup>
 import { ref } from 'vue'
 import ChannelSelect from './ChannelSelect.vue'
-import { Plus } from '@element-plus/icons-vue'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { Plus, VideoCamera, Delete } from '@element-plus/icons-vue'
 import {
   artPublishService,
   artGetDetailService,
-  artEditService
+  artEditService,
+  videoUploadService
 } from '@/api/video'
 import { baseURL } from '@/utils/request'
 import axios from 'axios'
@@ -20,6 +19,7 @@ const defaultForm = {
   cate_id: '', // 分类id
   cover_img: '', // 封面图片 file 对象
   content: '', // string 内容
+  video_url: '', // 视频文件地址（上传到后端后返回的相对路径）
   state: '' // 状态
 }
 
@@ -34,9 +34,60 @@ const onSelectFile = (uploadFile) => {
   formModel.value.cover_img = uploadFile.raw
 }
 
+// 视频上传相关逻辑：选中文件后直接上传到后端 uploads 目录
+const videoUploading = ref(false) // 是否正在上传
+const videoProgress = ref(0) // 上传进度 0~100
+const videoName = ref('') // 已上传视频的文件名（用于展示）
+
+const onSelectVideo = async (uploadFile) => {
+  const raw = uploadFile.raw
+  // 简单校验：必须是视频，且不超过 500MB
+  if (!raw.type.startsWith('video/')) {
+    ElMessage.error('请选择视频文件')
+    return
+  }
+  if (raw.size > 500 * 1024 * 1024) {
+    ElMessage.error('视频大小不能超过 500MB')
+    return
+  }
+
+  videoUploading.value = true
+  videoProgress.value = 0
+  try {
+    const res = await videoUploadService(raw, (p) => {
+      videoProgress.value = p
+    })
+    formModel.value.video_url = res.data.url // 保存视频地址，随表单一起提交
+    videoName.value = raw.name
+    ElMessage.success('视频上传成功')
+  } catch (e) {
+    ElMessage.error('视频上传失败，请确认后端服务已启动')
+    console.error(e)
+  } finally {
+    videoUploading.value = false
+  }
+}
+
+// 移除已上传的视频
+const onRemoveVideo = () => {
+  formModel.value.video_url = ''
+  videoName.value = ''
+  videoProgress.value = 0
+}
+
 // 提交
 const emit = defineEmits(['success'])
 const onPublish = async (state) => {
+  // 校验：必须先上传视频才能提交
+  if (videoUploading.value) {
+    ElMessage.warning('视频正在上传中，请稍候')
+    return
+  }
+  if (!formModel.value.video_url) {
+    ElMessage.warning('请先上传视频')
+    return
+  }
+
   // 将已发布还是草稿状态，存入 formModel
   formModel.value.state = state
 
@@ -64,7 +115,6 @@ const onPublish = async (state) => {
   }
 }
 
-const editorRef = ref()
 const open = async (row) => {
   visibleDrawer.value = true // 显示抽屉
 
@@ -84,11 +134,15 @@ const open = async (row) => {
       formModel.value.cover_img
     )
     formModel.value.cover_img = file
+    // 视频回显：已上传过则展示文件名
+    videoName.value = formModel.value.video_url ? '已上传的视频' : ''
+    videoProgress.value = formModel.value.video_url ? 100 : 0
   } else {
     formModel.value = { ...defaultForm } // 基于默认的数据，重置form数据
-    // 这里重置了表单的数据，但是图片上传img地址，富文本编辑器内容 => 需要手动重置
+    // 这里重置了表单的数据，但是图片上传img地址需要手动重置
     imgUrl.value = ''
-    editorRef.value.setHTML('')
+    videoName.value = ''
+    videoProgress.value = 0
   }
 }
 
@@ -153,11 +207,55 @@ defineExpose({
           <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
         </el-upload>
       </el-form-item>
+      <el-form-item label="视频文件" prop="video_url" required>
+        <div class="video-uploader">
+          <el-upload
+            :show-file-list="false"
+            :auto-upload="false"
+            accept="video/*"
+            :on-change="onSelectVideo"
+          >
+            <PinkButton :icon="VideoCamera" :loading="videoUploading">
+              {{ videoUploading ? '上传中...' : '选择视频上传' }}
+            </PinkButton>
+          </el-upload>
+
+          <!-- 上传进度 -->
+          <el-progress
+            v-if="videoUploading"
+            :percentage="videoProgress"
+            :stroke-width="10"
+            style="margin-top: 8px"
+          />
+
+          <!-- 上传成功后的预览 -->
+          <div v-if="formModel.video_url && !videoUploading" class="video-preview">
+            <video :src="baseURL + formModel.video_url" controls preload="metadata"></video>
+            <div class="video-meta">
+              <span class="video-name">
+                <el-icon><VideoCamera /></el-icon>
+                {{ videoName || '已上传视频' }}
+              </span>
+              <el-button type="danger" link :icon="Delete" @click="onRemoveVideo">
+                移除
+              </el-button>
+            </div>
+          </div>
+          <div v-else-if="!videoUploading" class="video-tip">
+            支持 mp4 等常见格式，单个文件不超过 500MB；上传后保存到服务器
+          </div>
+        </div>
+      </el-form-item>
       <el-form-item label="视频内容" prop="content">
-        <el-input v-model="formModel.content"></el-input>
+        <el-input
+          v-model="formModel.content"
+          type="textarea"
+          :rows="4"
+          placeholder="请输入视频简介"
+        ></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="onPublish('已发布')" type="primary">发布</el-button>
+        <PinkButton @click="onPublish('已发布')">发布</PinkButton>
         <el-button @click="onPublish('草稿')" type="info">草稿</el-button>
       </el-form-item>
     </el-form>
@@ -193,10 +291,39 @@ defineExpose({
   }
 }
 
-.editor {
+.video-uploader {
   width: 100%;
-  :deep(.ql-editor) {
-    min-height: 200px;
+  .video-preview {
+    margin-top: 10px;
+    video {
+      width: 100%;
+      max-height: 240px;
+      border-radius: 8px;
+      background: #000;
+      display: block;
+    }
+    .video-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 13px;
+      color: #606266;
+      .video-name {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 80%;
+      }
+    }
+  }
+  .video-tip {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #909399;
   }
 }
 </style>

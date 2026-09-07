@@ -31,22 +31,15 @@ const router = createRouter({
         {
           path: '/user/profile',
           component: () => import('@/views/user/UserProfile.vue')
-        }
-      ]
-    },
-      {
-        path:'/update',
-        component:()=>import('@/views/video/user_p_a.vue'),
-        children:[
-          {
+        },{
             path: '/update/avatar',
             component: () => import('@/views/user/UserAvatar.vue')
           },{
             path: '/update/password',
             component: () => import('@/views/user/UserPassword.vue')
           }
-        ]
-      }
+      ]
+    }
   ],
 })
 

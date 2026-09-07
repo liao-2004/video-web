@@ -130,7 +130,7 @@
                   <img class="card-img" :src="baseURL + item.cover_img" alt="" />
                   <!-- 悬浮播放按钮 -->
                   <div class="play-mask">
-                    <el-icon :size="40"><VideoPlay /></el-icon>
+                    <!-- <el-icon :size="40"><VideoPlay /></el-icon> -->
                   </div>
                   <!-- 是否含播放源标记 -->
                 </div>
@@ -205,15 +205,18 @@
       padding: 10px;
     }
     .card {
-      height: 215px;
-      width: 240px;
+      height: 260px;
+      width: 320px;
       cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
       transition: all 0.3s ease;
     }
     .card:hover { transform: translateY(-4px); }
     .crad-img-box {
       position: relative;
-      height: 60%;
+      height: 70%;
       width: 100%;
       overflow: hidden;
       border-radius: 8px;

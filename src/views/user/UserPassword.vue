@@ -85,8 +85,8 @@ const resetForm = () => {
           <el-form-item label="确认密码" prop="re_pwd">
             <el-input v-model="pwdForm.re_pwd" show-password></el-input>
           </el-form-item>
-          <el-form-item>
-            <PinkButton @click="submitForm">修改密码</PinkButton>
+          <el-form-item class="flex">
+            <PinkButton  @click="submitForm" :style="{margin:'0px 70px 0px 180px'}">修改密码</PinkButton >
             <el-button @click="resetForm">重置</el-button>
           </el-form-item>
         </el-form></el-col
@@ -94,3 +94,10 @@ const resetForm = () => {
     </el-row>
   </page-container>
 </template>
+<style scoped>
+.flex{
+  display: flex;
+
+  gap: 20;
+}
+</style>

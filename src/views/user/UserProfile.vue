@@ -52,7 +52,7 @@ const submitForm = async () => {
 <template>
   <page-container title="基本资料">
     <!-- 表单部分 -->
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="600px" :style="{width:'1080px'}">
       <el-form-item label="登录名称">
         <el-input v-model="form.username" disabled></el-input>
       </el-form-item>
@@ -63,7 +63,7 @@ const submitForm = async () => {
         <el-input v-model="form.email"></el-input>
       </el-form-item>
       <el-form-item>
-        <PinkButton @click="submitForm">提交修改</PinkButton>
+        <PinkButton @click="submitForm" :style="{marginLeft:'180px'}">提交修改</PinkButton>
       </el-form-item>
     </el-form>
   </page-container>

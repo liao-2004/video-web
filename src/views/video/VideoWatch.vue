@@ -95,7 +95,8 @@ const goBack = () => {
   font-weight: 700;
 }
 .player-card {
-  max-width: 980px;
+  padding: 20px 30px 30px 30px;
+  max-width: 1200px;
   margin: 0 auto;
   background: var(--app-surface);
   border-radius: 12px;
@@ -104,6 +105,7 @@ const goBack = () => {
 }
 .player {
   width: 100%;
+  border-radius: 4px;
   background: #000;
   aspect-ratio: 16 / 9;
 }

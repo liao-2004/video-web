@@ -1,42 +1,3 @@
-<script setup>
-import { ref } from 'vue'
-import { Edit, Delete } from '@element-plus/icons-vue'
-import { artGetChannelsService, artDelChannelService } from '../../api/video'
-import ChannelEdit from './components/ChannelEdit.vue'
-const channelList = ref([])
-const loading = ref(false)
-const dialog = ref()
-
-const getChannelList = async () => {
-  loading.value = true
-  const res = await artGetChannelsService()
-  channelList.value = res.data.data
-  loading.value = false
-}
-getChannelList()
-
-
-const onDelChannel = async (row) => {
-  await ElMessageBox.confirm('你确认要删除该分类么', '温馨提示', {
-    type: 'warning',
-    confirmButtonText: '确认',
-    cancelButtonText: '取消'
-  })
-  console.log(row.Id)
-  await artDelChannelService(row.Id)
-  ElMessage.success('删除成功')
-  getChannelList()
-}
-const onEditChannel = (row) => {
-  dialog.value.open(row)
-}
-const onAddChannel = () => {
-  dialog.value.open({})
-}
-const onSuccess = () => {
-  getChannelList()
-}
-</script>
 
 <template>
   <page-container title="视频分类">
@@ -77,6 +38,46 @@ const onSuccess = () => {
     <channel-edit ref="dialog" @success="onSuccess"></channel-edit>
   </page-container>
 </template>
+<script setup>
+import { ref } from 'vue'
+import { Edit, Delete } from '@element-plus/icons-vue'
+import { artGetChannelsService, artDelChannelService } from '../../api/video'
+import ChannelEdit from './components/ChannelEdit.vue'
+const channelList = ref([])
+const loading = ref(false)
+const dialog = ref()
+
+const getChannelList = async () => {
+  loading.value = true
+  const res = await artGetChannelsService()
+  channelList.value = res.data.data
+  loading.value = false
+}
+getChannelList()
+
+
+const onDelChannel = async (row) => {
+  await ElMessageBox.confirm('你确认要删除该分类么', '温馨提示', {
+    type: 'warning',
+    confirmButtonText: '确认',
+    cancelButtonText: '取消'
+  })
+  console.log(row.Id)
+  await artDelChannelService(row.Id)
+  ElMessage.success('删除成功')
+  getChannelList()
+}
+const onEditChannel = (row) => {
+  dialog.value.open(row)
+}
+const onAddChannel = () => {
+  dialog.value.open({})
+}
+const onSuccess = () => {
+  getChannelList()
+}
+</script>
+
 
 <style lang="scss" scoped>
 .op-btns {

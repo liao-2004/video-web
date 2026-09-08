@@ -1,3 +1,39 @@
+
+
+<template>
+  <el-dialog
+    v-model="dialogVisible"
+    :title="formModel.Id ? '编辑分类' : '添加分类'"
+    width="30%"
+  >
+    <el-form
+      ref="formRef"
+      :model="formModel"
+      :rules="rules"
+      label-width="100px"
+      style="padding-right: 30px"
+    >
+      <el-form-item label="分类名称" prop="name">
+        <el-input
+          v-model="formModel.name"
+          placeholder="请输入分类名称"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="分类别名" prop="alias">
+        <el-input
+          v-model="formModel.alias"
+          placeholder="请输入分类别名"
+        ></el-input>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <PinkButton @click="onSubmit"> 确认 </PinkButton>
+      </span>
+    </template>
+  </el-dialog>
+</template>
 <script setup>
 import { ref } from 'vue'
 import { artEditChannelService, artAddChannelService } from '@/api/video.js'
@@ -29,7 +65,7 @@ const rules = {
 const emit = defineEmits(['success'])
 const onSubmit = async () => {
   await formRef.value.validate()
-  const isEdit = formModel.value.id
+  const isEdit = formModel.value.Id
   if (isEdit) {
     await artEditChannelService(formModel.value)
     ElMessage.success('编辑成功')
@@ -55,38 +91,3 @@ defineExpose({
   open
 })
 </script>
-
-<template>
-  <el-dialog
-    v-model="dialogVisible"
-    :title="formModel.id ? '编辑分类' : '添加分类'"
-    width="30%"
-  >
-    <el-form
-      ref="formRef"
-      :model="formModel"
-      :rules="rules"
-      label-width="100px"
-      style="padding-right: 30px"
-    >
-      <el-form-item label="分类名称" prop="name">
-        <el-input
-          v-model="formModel.name"
-          placeholder="请输入分类名称"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="分类别名" prop="alias">
-        <el-input
-          v-model="formModel.alias"
-          placeholder="请输入分类别名"
-        ></el-input>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <PinkButton @click="onSubmit"> 确认 </PinkButton>
-      </span>
-    </template>
-  </el-dialog>
-</template>

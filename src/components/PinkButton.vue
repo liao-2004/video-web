@@ -43,6 +43,7 @@ defineProps({
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  margin-right: 20px;
   gap: 6px;
   height: 32px;
   padding: 0 16px;

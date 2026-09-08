@@ -3,22 +3,42 @@ const db = require('../db/index')
 // 导入处理密码的模块
 const bcrypt = require('bcryptjs')
 
-// 获取用户基本信息的处理函数
+// 获取用户基本信息的处理函数（含权限标识和角色信息）
 exports.getUserInfo = (req, res) => {
-  // 定义查询用户信息的 SQL 语句
-  const sql = `select id, username, nickname, email, user_pic,role from bilibili_user where id=?`
-  // 调用 db.query() 执行 SQL 语句
+  const sql = `select id, username, nickname, email, user_pic, role from bilibili_user where id=?`
   db.query(sql, req.user.id, (err, results) => {
-    // 执行 SQL 语句失败
     if (err) return res.cc(err)
-    // 执行 SQL 语句成功，但是查询的结果可能为空
     if (results.length !== 1) return res.cc('获取用户信息失败！')
 
-    // 用户信息获取成功
-    res.send({
-      status: 0,
-      message: '获取用户信息成功！',
-      data: results[0],
+    const userInfo = results[0]
+
+    // 查询角色信息
+    const roleSql = 'SELECT id, role_name, role_key FROM bili_role WHERE id = ?'
+    db.query(roleSql, userInfo.role, (err2, roleResults) => {
+      // 查询权限标识列表
+      const permsSql = `
+        SELECT DISTINCT m.perms
+        FROM bili_role_menu rm
+        JOIN bili_menu m ON m.id = rm.menu_id
+        WHERE rm.role_id = ? AND m.perms IS NOT NULL AND m.perms != ''
+      `
+      db.query(permsSql, userInfo.role, (err3, permsResults) => {
+        const permissions = permsResults ? permsResults.map((r) => r.perms).filter(Boolean) : []
+        // 管理员拥有所有权限（用 * 表示）
+        if (userInfo.role === 1) {
+          permissions.unshift('*')
+        }
+
+        res.send({
+          status: 0,
+          message: '获取用户信息成功！',
+          data: {
+            ...userInfo,
+            role: roleResults && roleResults.length > 0 ? roleResults[0] : { id: userInfo.role, role_name: '未知', role_key: '' },
+            permissions
+          }
+        })
+      })
     })
   })
 }

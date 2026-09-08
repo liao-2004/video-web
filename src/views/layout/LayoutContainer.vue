@@ -11,18 +11,53 @@ import {
   CaretBottom,
   Moon,
   Sunny,
-  Upload
+  Upload,
+  Setting,
+  Menu as MenuIcon
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
-import { useUserStore } from '@/stores'
+import { useUserStore, usePermissionStore } from '@/stores'
 import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
+import { resetRouter } from '@/router'
+
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 const router = useRouter()
 const { isDark } = useTheme()
+
 // 菜单文字色随主题变化
 const menuTextColor = computed(() => (isDark.value ? '#cfd3dc' : '#1f2329'))
+
+// 图标名称到组件的映射
+const iconMap = {
+  HomeFilled,
+  Management,
+  Promotion,
+  Upload,
+  Setting,
+  UserFilled,
+  User,
+  Crop,
+  EditPen,
+  MenuIcon
+}
+
+// 从动态路由获取菜单列表
+const menuList = computed(() => {
+  return permissionStore.dynamicRoutes || []
+})
+
+// 判断是否有子菜单（目录类型）
+const hasChildren = (route) => {
+  return route.children && route.children.length > 0
+}
+
+// 获取图标组件
+const getIcon = (iconName) => {
+  return iconMap[iconName] || HomeFilled
+}
 
 onMounted(() => {
   userStore.getUser()
@@ -30,28 +65,21 @@ onMounted(() => {
 
 const handleCommand = async (key) => {
   if (key === 'logout') {
-    // 直接退出：清除本地的数据 (token + user信息)
+    // 退出登录：清除 token、用户信息、权限，重置路由
     userStore.removeToken()
     userStore.setUser({})
+    permissionStore.resetPermission()
+    resetRouter()
     router.push('/login')
-  } else if(key=='password'||key=='avatar'){
+  } else if (key === 'password' || key === 'avatar') {
     router.push(`/update/${key}`)
-  }else {
-    // 跳转操作
+  } else {
     router.push(`/user/${key}`)
   }
 }
 </script>
 
 <template>
-  <!-- 
-    el-menu 整个菜单组件
-      :default-active="$route.path"  配置默认高亮的菜单项
-      router  router选项开启，el-menu-item 的 index 就是点击跳转的路径
-
-    el-menu-item 菜单项
-      index="/article/channel" 配置的是访问的跳转路径，配合default-active的值，实现高亮
-  -->
   <el-container class="layout-container">
     <el-aside width="200px">
       <div class="el-aside__logo"></div>
@@ -62,50 +90,36 @@ const handleCommand = async (key) => {
         :background-color="'transparent'"
         router
       >
-        <el-menu-item index="/video/userVideo">
-          <el-icon><HomeFilled /></el-icon>
-          <span>视频中心</span>
-        </el-menu-item>
-        <el-menu-item v-if="userStore.user.role==1" index="/video/channel">
-          <el-icon><Management /></el-icon>
-          <span>视频分类</span>
-        </el-menu-item>
-        <el-menu-item index="/video/manage">
-          <el-icon><Promotion /></el-icon>
-          <span>视频管理</span>
-        </el-menu-item>
-        <el-menu-item index="/video/chunk-upload">
-          <el-icon><Upload /></el-icon>
-          <span>分片上传</span>
-        </el-menu-item>
+        <!-- 动态渲染菜单：从 permissionStore.dynamicRoutes 生成 -->
+        <template v-for="route in menuList" :key="route.path">
+          <!-- 目录类型（有子菜单） -->
+          <el-sub-menu v-if="hasChildren(route)" :index="route.path">
+            <template #title>
+              <el-icon><component :is="getIcon(route.meta?.icon)" /></el-icon>
+              <span>{{ route.meta?.title }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in route.children"
+              :key="child.path"
+              :index="child.path"
+            >
+              <el-icon><component :is="getIcon(child.meta?.icon)" /></el-icon>
+              <span>{{ child.meta?.title }}</span>
+            </el-menu-item>
+          </el-sub-menu>
 
-        <el-sub-menu index="/user">
-          <!-- 多级菜单的标题 - 具名插槽 title -->
-          <template #title>
-            <el-icon><UserFilled /></el-icon>
-            <span>个人中心</span>
-          </template>
-
-          <!-- 展开的内容 - 默认插槽 -->
-          <el-menu-item index="/user/profile">
-            <el-icon><User /></el-icon>
-            <span>基本资料</span>
+          <!-- 菜单类型（无子菜单） -->
+          <el-menu-item v-else :index="route.path">
+            <el-icon><component :is="getIcon(route.meta?.icon)" /></el-icon>
+            <span>{{ route.meta?.title }}</span>
           </el-menu-item>
-          <el-menu-item index="/update/avatar">
-            <el-icon><Crop /></el-icon>
-            <span>更换头像</span>
-          </el-menu-item>
-          <el-menu-item index="/update/password">
-            <el-icon><EditPen /></el-icon>
-            <span>重置密码</span>
-          </el-menu-item>
-        </el-sub-menu>
+        </template>
       </el-menu>
     </el-aside>
     <el-container>
       <el-header>
         <div>
-          {{userStore.user.role==1?'管理员':'用户'}}：<strong>{{
+          {{ userStore.user.role?.id === 1 ? '管理员' : '用户' }}：<strong>{{
             userStore.user.nickname || userStore.user.username
           }}</strong>
         </div>
@@ -119,30 +133,28 @@ const handleCommand = async (key) => {
             style="--el-switch-on-color: #2c2e36; --el-switch-off-color: #fb7299"
           />
           <el-dropdown placement="bottom-end" @command="handleCommand">
-          <!-- 展示给用户，默认看到的 -->
-          <span class="el-dropdown__box">
-            <el-avatar :src="userStore.user.user_pic || avatar" />
-            <el-icon><CaretBottom /></el-icon>
-          </span>
+            <span class="el-dropdown__box">
+              <el-avatar :src="userStore.user.user_pic || avatar" />
+              <el-icon><CaretBottom /></el-icon>
+            </span>
 
-          <!-- 折叠的下拉部分 -->
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="profile" :icon="User"
-                >基本资料</el-dropdown-item
-              >
-              <el-dropdown-item command="avatar" :icon="Crop"
-                >更换头像</el-dropdown-item
-              >
-              <el-dropdown-item command="password" :icon="EditPen"
-                >重置密码</el-dropdown-item
-              >
-              <el-dropdown-item command="logout" :icon="SwitchButton"
-                >退出登录</el-dropdown-item
-              >
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="profile" :icon="User"
+                  >基本资料</el-dropdown-item
+                >
+                <el-dropdown-item command="avatar" :icon="Crop"
+                  >更换头像</el-dropdown-item
+                >
+                <el-dropdown-item command="password" :icon="EditPen"
+                  >重置密码</el-dropdown-item
+                >
+                <el-dropdown-item command="logout" :icon="SwitchButton"
+                  >退出登录</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </el-header>
       <el-main>

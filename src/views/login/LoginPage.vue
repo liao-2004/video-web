@@ -190,7 +190,7 @@ watch(isRegister, () => {
   padding: 24px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #fff1f5 0%, #ffe1ec 45%, #ffd2e3 100%);
+  background: #fff;
 
   /* 两团柔和的粉色光斑作装饰 */
   &::before,
@@ -207,14 +207,13 @@ watch(isRegister, () => {
     height: 420px;
     top: -120px;
     left: -100px;
-    background: #fb7299;
   }
   &::after {
     width: 360px;
     height: 360px;
     bottom: -120px;
     right: -80px;
-    background: #ff9bbb;
+    // background: #ff9bbb;
   }
 }
 

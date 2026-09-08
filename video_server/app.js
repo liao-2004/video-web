@@ -35,6 +35,12 @@ app.use('/my/video', videoRouter)
 const videoChunkRouter = require('./router/videoChunk')
 app.use('/my/video/chunk', videoChunkRouter)
 
+// 系统管理：菜单和角色路由
+const menuRouter = require('./router/menu')
+app.use('/my/menu', menuRouter)
+const roleRouter = require('./router/role')
+app.use('/my/role', roleRouter)
+
 app.use((err, req, res, next) => {
   // 验证失败导致的错误
   if (err instanceof joi.ValidationError) return res.cc(err, 1)

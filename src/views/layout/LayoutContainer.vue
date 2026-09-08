@@ -10,7 +10,8 @@ import {
   SwitchButton,
   CaretBottom,
   Moon,
-  Sunny
+  Sunny,
+  Upload
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import { useUserStore } from '@/stores'
@@ -72,6 +73,10 @@ const handleCommand = async (key) => {
         <el-menu-item index="/video/manage">
           <el-icon><Promotion /></el-icon>
           <span>视频管理</span>
+        </el-menu-item>
+        <el-menu-item index="/video/chunk-upload">
+          <el-icon><Upload /></el-icon>
+          <span>分片上传</span>
         </el-menu-item>
 
         <el-sub-menu index="/user">

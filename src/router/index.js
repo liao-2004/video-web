@@ -25,6 +25,10 @@ const router = createRouter({
           component:()=>import('@/views/video/VideoManage.vue')
         },
         {
+          path:'/video/chunk-upload',
+          component:()=>import('@/views/video/ChunkUploadPage.vue')
+        },
+        {
           path:'/video/channel',
           component:()=>import('@/views/video/VideoChannel.vue')
         },

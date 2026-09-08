@@ -31,6 +31,9 @@ const videoCateRouter = require('./router/videocate')
 app.use('/my/cate', videoCateRouter)
 const videoRouter = require('./router/video')
 app.use('/my/video', videoRouter)
+// 分片上传路由（独立模块，不影响原有 /my/video/upload 接口）
+const videoChunkRouter = require('./router/videoChunk')
+app.use('/my/video/chunk', videoChunkRouter)
 
 app.use((err, req, res, next) => {
   // 验证失败导致的错误

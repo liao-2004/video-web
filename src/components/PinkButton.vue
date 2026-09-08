@@ -1,21 +1,3 @@
-<script setup>
-// 原生 button 封装的粉色按钮，替代项目里 type="primary" 的 el-button
-// 放在 src/components 下，配合 unplugin-vue-components 自动全局可用 <PinkButton>
-import { Loading } from '@element-plus/icons-vue'
-
-defineProps({
-  icon: { type: [Object, Function], default: null }, // 图标组件，如 Edit
-  loading: { type: Boolean, default: false }, // 加载态（图标旋转 + 禁用）
-  disabled: { type: Boolean, default: false }, // 禁用
-  plain: { type: Boolean, default: false }, // 朴素（浅底粉字，悬浮填充）
-  circle: { type: Boolean, default: false }, // 圆形（图标按钮）
-  round: { type: Boolean, default: false }, // 圆角胶囊
-  size: { type: String, default: 'default' }, // large | default | small
-  nativeType: { type: String, default: 'button' } // 原生 type
-})
-// 不额外 emit click：单根原生 button，父级 @click 会自动透传到它
-</script>
-
 <template>
   <button
     class="pink-btn"
@@ -37,6 +19,24 @@ defineProps({
     <span v-if="$slots.default" class="pink-btn__text"><slot /></span>
   </button>
 </template>
+<script setup>
+// 原生 button 封装的粉色按钮，替代项目里 type="primary" 的 el-button
+// 放在 src/components 下，配合 unplugin-vue-components 自动全局可用 <PinkButton>
+import { Loading } from '@element-plus/icons-vue'
+
+defineProps({
+  icon: { type: [Object, Function], default: null }, // 图标组件，如 Edit
+  loading: { type: Boolean, default: false }, // 加载态（图标旋转 + 禁用）
+  disabled: { type: Boolean, default: false }, // 禁用
+  plain: { type: Boolean, default: false }, // 朴素（浅底粉字，悬浮填充）
+  circle: { type: Boolean, default: false }, // 圆形（图标按钮）
+  round: { type: Boolean, default: false }, // 圆角胶囊
+  size: { type: String, default: 'default' }, // large | default | small
+  nativeType: { type: String, default: 'button' } // 原生 type
+})
+// 不额外 emit click：单根原生 button，父级 @click 会自动透传到它
+</script>
+
 
 <style scoped>
 .pink-btn {
@@ -44,6 +44,7 @@ defineProps({
   align-items: center;
   justify-content: center;
   margin-right: 20px;
+  margin-left: 8px;
   gap: 6px;
   height: 32px;
   padding: 0 16px;

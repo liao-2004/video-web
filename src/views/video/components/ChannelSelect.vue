@@ -1,3 +1,18 @@
+<template>
+  <!-- label 展示给用户看的，value 收集起来提交给后台的 -->
+  <el-select
+    :modelValue="modelValue"
+    @update:modelValue="emit('update:modelValue', $event)"
+    :style="{ width }"
+  >
+    <el-option
+      v-for="channel in channelList"
+      :key="channel.Id"
+      :label="channel.name"
+      :value="channel.Id"
+    ></el-option>
+  </el-select>
+</template>
 <script setup>
 import { artGetChannelsService } from '@/api/video.js'
 import { ref } from 'vue'
@@ -19,18 +34,3 @@ const getChannelList = async () => {
 getChannelList()
 </script>
 
-<template>
-  <!-- label 展示给用户看的，value 收集起来提交给后台的 -->
-  <el-select
-    :modelValue="modelValue"
-    @update:modelValue="emit('update:modelValue', $event)"
-    :style="{ width }"
-  >
-    <el-option
-      v-for="channel in channelList"
-      :key="channel.Id"
-      :label="channel.name"
-      :value="channel.Id"
-    ></el-option>
-  </el-select>
-</template>

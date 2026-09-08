@@ -1,11 +1,3 @@
-<script setup>
-defineProps({
-  title: {
-    required: true,
-    type: String
-  }
-})
-</script>
 
 <template>
   <el-card class="page-container">
@@ -20,6 +12,14 @@ defineProps({
     <slot></slot>
   </el-card>
 </template>
+<script setup>
+defineProps({
+  title: {
+    required: true,
+    type: String
+  }
+})
+</script>
 
 <style lang="scss" scoped>
 .page-container {

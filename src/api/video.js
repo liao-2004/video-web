@@ -54,3 +54,35 @@ export const artEditService = (data) => request.put('/my/video/info', data)
 // 视频：删除视频接口
 export const artDelService = (id) =>
   request.delete('/my/video/info', { params: { id } })
+
+// ==================== 分片上传（大文件 + 断点续传）====================
+
+// 1. 初始化分片上传，返回已上传的分片索引（用于断点续传）
+export const chunkInitService = (data) =>
+  request.post('/my/video/chunk/init', data)
+
+// 2. 上传单个分片
+// chunk: Blob 分片; fileHash: 文件唯一标识; chunkIndex: 分片索引
+// onProgress: 当前分片上传进度回调 (0~100)
+export const chunkUploadService = (chunk, fileHash, chunkIndex, onProgress) => {
+  const fd = new FormData()
+  fd.append('chunk', chunk)
+  fd.append('fileHash', fileHash)
+  fd.append('chunkIndex', chunkIndex)
+  return request.post('/my/video/chunk/upload', fd, {
+    timeout: 0,
+    onUploadProgress: (e) => {
+      if (onProgress && e.total) {
+        onProgress(Math.round((e.loaded / e.total) * 100))
+      }
+    }
+  })
+}
+
+// 3. 查询上传状态（断网重连后调用，获取已上传分片）
+export const chunkStatusService = (fileHash) =>
+  request.get('/my/video/chunk/status', { params: { fileHash } })
+
+// 4. 合并所有分片，返回最终文件地址
+export const chunkMergeService = (data) =>
+  request.post('/my/video/chunk/merge', data)

@@ -77,16 +77,12 @@ const onSubmit = async () => {
   emit('success')
 }
 
-// 组件对外暴露一个方法 open，基于open传来的参数，区分添加还是编辑
-// open({})  => 表单无需渲染，说明是添加
-// open({ id, cate_name, ... })  => 表单需要渲染，说明是编辑
-// open调用后，可以打开弹窗
+
 const open = (row) => {
   dialogVisible.value = true
-  formModel.value = { ...row } // 添加 → 重置了表单内容，编辑 → 存储了需要回显的数据
+  formModel.value = { ...row } 
 }
 
-// 向外暴露方法
 defineExpose({
   open
 })

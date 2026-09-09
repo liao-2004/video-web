@@ -1,7 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-// 按需引入用到的图标
 import { User, Crop, EditPen, SwitchButton, CaretBottom } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import { useUserStore } from '@/stores'
@@ -15,7 +14,6 @@ const handleCommand = async (key) => {
       userStore.setUser({})
       router.push('/login')
   } else if (key === 'password' || key === 'avatar') {
-    // 跳 /update/avatar、/update/password 独立路由，跳出布局
     router.push(`/update/${key}`)
   } else {
     router.push(`/user/${key}`)
@@ -52,7 +50,6 @@ const handleCommand = async (key) => {
   display: flex;
   justify-content: left;
   align-content: center;
-  /* 修正类名拼写background，删掉多余嵌套.header */
   .background-img {
     background: url('@/assets/logo2.png') no-repeat center / 80px;
     height: 60px;

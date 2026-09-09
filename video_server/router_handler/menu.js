@@ -1,7 +1,7 @@
-// 菜单管理处理函数
+
 const db = require('../db/index')
 
-// 获取菜单列表（树形结构）
+
 exports.getMenuTree = (req, res) => {
   const sql = 'SELECT * FROM bili_menu ORDER BY sort, id'
   db.query(sql, (err, results) => {
@@ -12,7 +12,6 @@ exports.getMenuTree = (req, res) => {
   })
 }
 
-// 获取当前用户的菜单树（根据角色过滤，自动补齐父级目录）
 exports.getUserMenuTree = (req, res) => {
   const userId = req.user.id
   const sql = `
@@ -26,14 +25,12 @@ exports.getUserMenuTree = (req, res) => {
   db.query(sql, userId, (err, results) => {
     if (err) return res.cc(err)
 
-    // 自动补齐所有父级目录（用户可能只关联了子菜单，没关联父目录）
     const allMenus = [...results]
     const menuIdSet = new Set(results.map((m) => m.id))
     const parentIdsToFetch = results
       .map((m) => m.parent_id)
       .filter((id) => id !== 0 && !menuIdSet.has(id))
 
-    // 递归查询父级
     function fetchParents(ids, done) {
       if (ids.length === 0) return done()
       const placeholders = ids.map(() => '?').join(',')
@@ -61,7 +58,6 @@ exports.getUserMenuTree = (req, res) => {
   })
 }
 
-// 获取菜单详情
 exports.getMenuById = (req, res) => {
   const sql = 'SELECT * FROM bili_menu WHERE id = ?'
   db.query(sql, req.query.id, (err, results) => {
@@ -71,7 +67,6 @@ exports.getMenuById = (req, res) => {
   })
 }
 
-// 新增菜单
 exports.addMenu = (req, res) => {
   const menu = req.body
   const sql = 'INSERT INTO bili_menu SET ?'
@@ -82,7 +77,6 @@ exports.addMenu = (req, res) => {
   })
 }
 
-// 编辑菜单
 exports.updateMenu = (req, res) => {
   const { id, ...menu } = req.body
   const sql = 'UPDATE bili_menu SET ? WHERE id = ?'
@@ -93,20 +87,17 @@ exports.updateMenu = (req, res) => {
   })
 }
 
-// 删除菜单
+
 exports.deleteMenu = (req, res) => {
   const id = req.query.id
-  // 检查是否有子菜单
   const checkSql = 'SELECT COUNT(*) as cnt FROM bili_menu WHERE parent_id = ?'
   db.query(checkSql, id, (err, results) => {
     if (err) return res.cc(err)
     if (results[0].cnt > 0) return res.cc('存在子菜单，无法删除')
-    // 删除菜单同时删除角色菜单关联
     const delSql = 'DELETE FROM bili_menu WHERE id = ?'
     db.query(delSql, id, (err2, results2) => {
       if (err2) return res.cc(err2)
       if (results2.affectedRows !== 1) return res.cc('删除菜单失败')
-      // 删除关联
       const delRelSql = 'DELETE FROM bili_role_menu WHERE menu_id = ?'
       db.query(delRelSql, id, () => {
         res.cc('删除菜单成功', 0)
@@ -115,15 +106,12 @@ exports.deleteMenu = (req, res) => {
   })
 }
 
-// 构建树形结构的工具函数
 function buildTree(menus) {
   const map = {}
   const roots = []
-  // 先建立 id -> 节点 的映射
   menus.forEach((m) => {
     map[m.id] = { ...m, children: [] }
   })
-  // 组装父子关系
   menus.forEach((m) => {
     const node = map[m.id]
     if (m.parent_id === 0 || !map[m.parent_id]) {
@@ -132,7 +120,6 @@ function buildTree(menus) {
       map[m.parent_id].children.push(node)
     }
   })
-  // 递归清理空 children
   function clean(node) {
     if (node.children.length === 0) {
       delete node.children

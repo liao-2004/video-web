@@ -6,35 +6,33 @@
     import { baseURL } from '@/utils/request'
 
     const router = useRouter()
-    // 点击卡片跳转到站内观看页
     const goWatch = (item) => {
       if (item.id == null) return
       router.push(`/video/watch/${item.id}`)
     }
 
-    const loading = ref(false)      // 是否正在加载
-    const finished = ref(false)     // 是否已全部加载完
-    const channelList = ref([])     // 分类列表
-    const newCate = ref('')         // 当前分类
-    const video_data = ref([])      // 累加的视频数据
-    const total = ref(0)            // 当前分类总数
-    const listRef = ref(null)       // 滚动容器引用
+    const loading = ref(false)     
+    const finished = ref(false)    
+    const channelList = ref([])    
+    const newCate = ref('')        
+    const video_data = ref([])     
+    const total = ref(0)       
+    const listRef = ref(null)     
 
     const params = ref({
       pagenum: 1,
-      pagesize: 8,   // 每页数量，4 的倍数和栅格对齐
+      pagesize: 8,  
       cate_id: '',
       state: '已发布'
     })
 
-    // 加载列表：reset=true 表示重新从第一页加载（切换分类/首次）
     const getList = async (reset = false) => {
       if (reset) {
         params.value.pagenum = 1
         video_data.value = []
         total.value = 0
         finished.value = false
-        loading.value = false              // 中断上一个分类未完成的加载状态
+        loading.value = false              
         await nextTick()
         if (listRef.value) listRef.value.scrollTop = 0   // 滚动位置归零
       }
@@ -86,7 +84,6 @@
       getList()
     }
 
-    // 切换分类
     const cateListFun = async (Id) => {
       if (Id === newCate.value) return
       newCate.value = Id
@@ -128,11 +125,8 @@
               >
                 <div class="crad-img-box">
                   <img class="card-img" :src="baseURL + item.cover_img" alt="" />
-                  <!-- 悬浮播放按钮 -->
                   <div class="play-mask">
-                    <!-- <el-icon :size="40"><VideoPlay /></el-icon> -->
                   </div>
-                  <!-- 是否含播放源标记 -->
                 </div>
                 <div class="card-font">
                   <p class="card-title">{{ item.title }}</p>
@@ -156,7 +150,7 @@
     .body {
       box-shadow: var(--shadow-card);
       border-radius: var(--radius-md);
-      height: 75vh;
+      height: 80vh;
       background-color: var(--app-surface);
     }
     .title-box {
@@ -187,7 +181,6 @@
       border-bottom: 0;
     }
 
-    /* 关键：滚动容器要有固定高度 + overflow:auto，无限滚动才会触发 */
     .list-wrap { height: 87%; }
     .infinite-list {
       height: 100%;
@@ -230,7 +223,6 @@
     }
     .crad-img-box:hover .card-img { transform: scale(1.08); }
 
-    /* 悬浮播放遮罩 */
     .play-mask {
       position: absolute;
       inset: 0;
@@ -244,7 +236,6 @@
     }
     .crad-img-box:hover .play-mask { opacity: 1; }
 
-    /* 可播放角标 */
     .badge {
       position: absolute;
       top: 8px;

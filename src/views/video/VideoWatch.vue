@@ -24,7 +24,6 @@ const getDetail = async () => {
 getDetail()
 
 const goBack = () => {
-  // 有历史则返回，否则回到视频中心
   if (window.history.length > 1) router.back()
   else router.push('/video/userVideo')
 }
@@ -39,7 +38,6 @@ const goBack = () => {
 
     <template v-if="video">
       <div class="player-card">
-        <!-- 视频播放器：优先播放上传的视频文件，没有则展示封面占位 -->
         <div class="player">
           <video
             v-if="video.video_url"
@@ -58,7 +56,6 @@ const goBack = () => {
           </div>
         </div>
 
-        <!-- 视频信息 -->
         <div class="info">
           <h1 class="title">{{ video.title }}</h1>
           <div class="meta">

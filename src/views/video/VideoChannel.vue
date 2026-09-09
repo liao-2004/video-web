@@ -10,7 +10,6 @@
       <el-table-column prop="name" label="分类名称"></el-table-column>
       <el-table-column prop="alias" label="分类别名"></el-table-column>
       <el-table-column label="操作" width="150">
-        <!-- row 就是 channelList 的一项， $index 下标 -->
         <template #default="{ row, $index }">
           <div class="op-btns">
             <PinkButton

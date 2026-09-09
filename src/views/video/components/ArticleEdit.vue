@@ -39,7 +39,6 @@
             </PinkButton>
           </el-upload>
 
-          <!-- 普通上传进度 -->
           <el-progress
             v-if="videoUploading"
             
@@ -49,7 +48,6 @@
             style="margin-top: 8px"
           />
 
-          <!-- 分片上传进度区 -->
           <div v-if="chunkUploading" class="chunk-upload-area">
             <el-progress
               :percentage="chunkProgress"
@@ -64,7 +62,6 @@
               </template>
             </el-progress>
 
-            <!-- 状态标签 -->
             <div class="chunk-status-bar">
               <el-tag v-if="!isOnline" type="warning" size="small" effect="dark">
                 <el-icon><Warning /></el-icon> 网络已断开，等待重连...
@@ -74,7 +71,6 @@
               <el-tag v-else type="primary" size="small">分片上传中（并发 {{ CONCURRENCY }}）</el-tag>
             </div>
 
-            <!-- 操作按钮 -->
             <div class="chunk-actions">
               <el-button
                 v-if="!chunkPaused && !chunkMerging"
@@ -94,7 +90,6 @@
               </el-button>
             </div>
 
-            <!-- 错误信息 -->
             <el-alert
               v-if="chunkError"
               :title="chunkError"
@@ -105,7 +100,6 @@
             />
           </div>
 
-          <!-- 上传成功后的预览 -->
           <div v-if="formModel.video_url && !isUploading" class="video-preview">
             <video :src="baseURL + formModel.video_url" controls preload="metadata"></video>
             <div class="video-meta">
@@ -119,7 +113,7 @@
             </div>
           </div>
           <div v-else-if="!isUploading" class="video-tip">
-            支持 mp4、avi、mov、mkv、flv、webm 等格式；小于 20MB 普通上传，大于 20MB 自动分片上传（支持断点续传）
+            支持 mp4、avi等格式；小于 20MB 普通上传，大于 20MB 自动分片上传（支持断点续传）
           </div>
         </div>
       </el-form-item>
@@ -155,21 +149,13 @@ import {
 import { baseURL } from '@/utils/request'
 import axios from 'axios'
 
-// 控制抽屉显示隐藏
 const visibleDrawer = ref(false)
 
-// 分片大小阈值：小于 20MB 走普通上传，大于等于 20MB 走分片上传
-// 注意：阈值不能设太大，否则普通上传一次性发送大文件会被 Nginx 拦截（413 Content Too Large）
 const CHUNK_THRESHOLD = 20 * 1024 * 1024
-// 单片大小 256KB（Nginx 默认 client_max_body_size 为 1MB，留足余量确保不被拦截）
-// 如需更大分片，请在 Nginx 配置中设置 client_max_body_size 500M; 后再调大此值
 const CHUNK_SIZE = 256 * 1024
-// 并发上传数
 const CONCURRENCY = 3
-// 视频扩展名白名单
 const VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.mkv', '.webm', '.m4v', '.mpeg', '.mpg', '.3gp', '.ts']
 
-// 默认数据
 const defaultForm = {
   title: '',
   cate_id: '',
@@ -180,21 +166,19 @@ const defaultForm = {
 }
 
 const formModel = ref({ ...defaultForm })
-
-// ==================== 封面图片上传 ====================
 const imgUrl = ref('')
 const onSelectFile = (uploadFile) => {
   imgUrl.value = URL.createObjectURL(uploadFile.raw)
   formModel.value.cover_img = uploadFile.raw
 }
 
-// ==================== 视频上传：普通 + 分片 ====================
-const videoUploading = ref(false) // 普通上传中
+//视频普通上传
+const videoUploading = ref(false)
 const videoProgress = ref(0)
 const videoName = ref('')
 
-// 分片上传相关状态
-const chunkUploading = ref(false) // 分片上传中（包含暂停状态）
+// 分片上传
+const chunkUploading = ref(false)
 const chunkPaused = ref(false)
 const chunkMerging = ref(false)
 const totalChunks = ref(0)
@@ -202,9 +186,9 @@ const uploadedChunks = ref(0)
 const chunkError = ref('')
 const isOnline = ref(navigator.onLine)
 
-let chunkFile = null // 当前文件
+let chunkFile = null 
 let chunkFileHash = ''
-let chunks = [] // 分片 Blob 数组
+let chunks = [] 
 let uploadedSet = new Set()
 let isPausedFlag = false
 let activeCount = 0
@@ -218,25 +202,20 @@ const chunkProgress = computed(() => {
   return Math.round((uploadedChunks.value / totalChunks.value) * 100)
 })
 
-// ==================== 视频文件校验 ====================
+// 文件校验 
 function validateVideoFile(file) {
-  // 1. MIME type 校验
   const isVideoMime = file.type && file.type.startsWith('video/')
-  // 2. 扩展名校验
   const ext = '.' + file.name.split('.').pop().toLowerCase()
   const isVideoExt = VIDEO_EXTENSIONS.includes(ext)
-  // 3. 两者满足其一即认为是视频（某些格式 MIME 识别不准，靠扩展名兜底）
   if (!isVideoMime && !isVideoExt) {
     return { valid: false, message: '请选择视频文件（支持 mp4、avi、mov、mkv、flv、webm 等格式）' }
   }
-  // 4. 文件大小不能为 0
   if (file.size === 0) {
     return { valid: false, message: '文件大小为 0，请重新选择' }
   }
   return { valid: true }
 }
 
-// 简单字符串哈希（djb2），生成文件唯一标识
 function hashString(str) {
   let hash = 5381
   for (let i = 0; i < str.length; i++) {
@@ -250,7 +229,6 @@ function generateFileHash(f) {
   return hashString(`${f.name}_${f.size}_${f.lastModified}`)
 }
 
-// 文件切片
 function createChunks(f) {
   const result = []
   let start = 0
@@ -261,30 +239,24 @@ function createChunks(f) {
   return result
 }
 
-// ==================== 选择视频：按大小分流 ====================
 const onSelectVideo = async (uploadFile) => {
   const raw = uploadFile.raw
 
-  // 视频文件校验
   const check = validateVideoFile(raw)
   if (!check.valid) {
     ElMessage.error(check.message)
     return
   }
 
-  // 小于阈值：走原来的普通上传
   if (raw.size < CHUNK_THRESHOLD) {
     await uploadVideoNormal(raw)
     return
   }
 
-  // 大于等于阈值：走分片上传
   await uploadVideoChunk(raw)
 }
 
-// 普通上传（原有逻辑不变）
 async function uploadVideoNormal(raw) {
-  // 普通上传后端限制 500MB，超过则提示
   if (raw.size > 500 * 1024 * 1024) {
     ElMessage.error('普通上传最大支持 500MB，更大文件请使用分片上传')
     return
@@ -306,10 +278,9 @@ async function uploadVideoNormal(raw) {
   }
 }
 
-// ==================== 分片上传核心逻辑 ====================
+
 
 async function uploadVideoChunk(raw) {
-  // 初始化分片状态
   chunkFile = raw
   chunkFileHash = generateFileHash(raw)
   chunks = createChunks(raw)
@@ -331,7 +302,6 @@ async function startChunkUpload() {
   chunkError.value = ''
 
   try {
-    // 1. 初始化，获取已上传分片（断点续传核心）
     const res = await chunkInitService({
       fileHash: chunkFileHash,
       fileName: chunkFile.name,
@@ -345,12 +315,10 @@ async function startChunkUpload() {
       ElMessage.info(`检测到未完成的上传，已上传 ${uploadedSet.size}/${totalChunks.value} 片，将继续上传`)
     }
 
-    // 2. 并发上传缺失分片
     nextIndex = 0
     activeCount = 0
     await uploadChunksConcurrent()
 
-    // 3. 全部完成则合并
     if (uploadedSet.size === totalChunks.value && !isPausedFlag && isOnline.value) {
       await mergeChunks()
     }
@@ -363,7 +331,6 @@ async function startChunkUpload() {
   }
 }
 
-// 并发上传（生产者-消费者模式）
 function uploadChunksConcurrent() {
   return new Promise((resolve) => {
     const pump = () => {
@@ -403,7 +370,6 @@ function uploadChunksConcurrent() {
   })
 }
 
-// 上传单个分片（带 2 次重试）
 async function uploadSingleChunk(index, retry = 2) {
   try {
     await chunkUploadService(chunks[index], chunkFileHash, index)
@@ -448,7 +414,7 @@ function pauseChunkUpload() {
   chunkPaused.value = true
 }
 
-// 继续分片上传（断点续传入口）
+// 继续分片上传
 async function resumeChunkUpload() {
   if (!chunkFile) return
   chunkPaused.value = false
@@ -456,13 +422,12 @@ async function resumeChunkUpload() {
   chunkError.value = ''
 
   try {
-    // 重新查询服务端已上传分片，确保状态一致（断点续传核心）
+    // 重新查询服务端已上传分片
     const res = await chunkStatusService(chunkFileHash)
     const uploaded = res.data?.data?.uploadedChunks || []
     uploadedSet = new Set(uploaded)
     uploadedChunks.value = uploadedSet.size
 
-    // 明确提示用户：从哪片继续，跳过了多少已上传的分片
     if (uploadedSet.size > 0) {
       ElMessage.info(`断点续传：已上传 ${uploadedSet.size}/${totalChunks.value} 片，跳过已传部分，从第 ${uploadedSet.size + 1} 片继续`)
     } else {
@@ -499,7 +464,7 @@ function resetChunkState() {
   activeCount = 0
 }
 
-// ==================== 移除视频 ====================
+// 移除视频
 const onRemoveVideo = () => {
   formModel.value.video_url = ''
   videoName.value = ''
@@ -507,7 +472,7 @@ const onRemoveVideo = () => {
   resetChunkState()
 }
 
-// ==================== 断网监听 ====================
+//断网监听
 function handleOnline() {
   isOnline.value = true
   if (chunkUploading.value && chunkPaused.value && !chunkMerging.value) {
@@ -535,7 +500,7 @@ onUnmounted(() => {
   resetChunkState()
 })
 
-// ==================== 提交表单 ====================
+// 提交表单
 const emit = defineEmits(['success'])
 const onPublish = async (state) => {
   if (isUploading.value) {
@@ -567,7 +532,6 @@ const onPublish = async (state) => {
   }
 }
 
-// ==================== 打开抽屉 ====================
 const open = async (row) => {
   visibleDrawer.value = true
 
@@ -596,7 +560,6 @@ const open = async (row) => {
   resetChunkState()
 }
 
-// 将网络图片地址转换为 File 对象
 async function imageUrlToFileObject(imageUrl, filename) {
   try {
     const response = await axios.get(imageUrl, { responseType: 'arraybuffer' })

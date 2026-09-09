@@ -1,3 +1,121 @@
+<!-- 菜单管理 -->
+<template>
+  <page-container title="菜单管理">
+    <template #extra>
+      <PinkButton v-hasPermi="['system:menu:add']" :icon="Plus" @click="onAdd(null)">新增菜单</PinkButton>
+    </template>
+
+    <!-- 菜单树表格 -->
+    <el-table
+      :data="menuTree"
+      v-loading="loading"
+      border
+      row-key="id"
+      default-expand-all
+      :tree-props="{ children: 'children' }"
+    >
+      <el-table-column label="菜单名称" prop="menu_name" min-width="200">
+        <template #default="{ row }">
+          <el-icon v-if="row.icon && row.icon !== '#'" style="margin-right: 6px">
+            <component :is="row.icon" />
+          </el-icon>
+          {{ row.menu_name }}
+        </template>
+      </el-table-column>
+      <el-table-column label="类型" width="80" align="center">
+        <template #default="{ row }">
+          <el-tag :type="menuTypeTag(row.menu_type)" size="small">{{ menuTypeText(row.menu_type) }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="路由地址" prop="path" min-width="180" show-overflow-tooltip />
+      <el-table-column label="组件路径" prop="component" min-width="180" show-overflow-tooltip />
+      <el-table-column label="权限标识" prop="perms" min-width="150" show-overflow-tooltip />
+      <el-table-column label="排序" prop="sort" width="80" align="center" />
+      <el-table-column label="显示" width="80" align="center">
+        <template #default="{ row }">
+          <el-tag :type="row.visible === 1 ? 'success' : 'info'" size="small">
+            {{ row.visible === 1 ? '显示' : '隐藏' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="220" fixed="right">
+        <template #default="{ row }">
+          <span
+            v-if="row.menu_type !== 'F'"
+            v-hasPermi="['system:menu:add']"
+            class="link-btn primary"
+            @click="onAdd(row)"
+          ><el-icon><Plus /></el-icon>新增</span>
+          <span
+            v-hasPermi="['system:menu:edit']"
+            class="link-btn success"
+            @click="onEdit(row)"
+          ><el-icon><Edit /></el-icon>编辑</span>
+          <span
+            v-hasPermi="['system:menu:delete']"
+            class="link-btn danger"
+            @click="onDelete(row)"
+          ><el-icon><Delete /></el-icon>删除</span>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 新增，编辑抽屉 -->
+    <el-drawer v-model="drawerVisible" :title="drawerTitle" direction="rtl" size="45%">
+      <el-form :model="formModel" :rules="rules" ref="formRef" label-width="100px">
+        <el-form-item label="上级菜单">
+          <el-select v-model="formModel.parent_id" style="width: 100%">
+            <el-option
+              v-for="opt in parentOptions"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
+              :disabled="opt.menu_type === 'C' && formModel.menu_type === 'M'"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="菜单类型" prop="menu_type">
+          <el-radio-group v-model="formModel.menu_type">
+            <el-radio v-for="opt in menuTypeOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="菜单名称" prop="menu_name">
+          <el-input v-model="formModel.menu_name" placeholder="请输入菜单名称" />
+        </el-form-item>
+        <el-form-item v-if="formModel.menu_type !== 'F'" label="路由地址">
+          <el-input v-model="formModel.path" placeholder="如 /video/manage" />
+        </el-form-item>
+        <el-form-item v-if="formModel.menu_type === 'C'" label="组件路径">
+          <el-input v-model="formModel.component" placeholder="如 video/VideoManage" />
+        </el-form-item>
+        <el-form-item label="权限标识">
+          <el-input v-model="formModel.perms" placeholder="如 system:role:list" />
+        </el-form-item>
+        <el-form-item v-if="formModel.menu_type !== 'F'" label="图标">
+          <el-input v-model="formModel.icon" placeholder="如 Setting，# 表示无图标" />
+        </el-form-item>
+        <el-form-item label="显示排序">
+          <el-input-number v-model="formModel.sort" :min="0" />
+        </el-form-item>
+        <el-form-item label="是否显示">
+          <el-radio-group v-model="formModel.visible">
+            <el-radio :value="1">显示</el-radio>
+            <el-radio :value="0">隐藏</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="formModel.remark" type="textarea" :rows="2" />
+        </el-form-item>
+        <el-form-item>
+          <PinkButton @click="onSubmit">确定</PinkButton>
+          <el-button @click="drawerVisible = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
+  </page-container>
+</template>
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Delete, Edit, Plus } from '@element-plus/icons-vue'
@@ -9,12 +127,11 @@ import {
   menuGetInfoService
 } from '@/api/system'
 
-// 菜单树
+// 获取菜单树
 const menuTree = ref([])
 const loading = ref(false)
 const defaultProps = { children: 'children', label: 'menu_name' }
 
-// 获取菜单树
 const getTree = async () => {
   loading.value = true
   const res = await menuGetTreeService()
@@ -38,7 +155,7 @@ const menuTypeTag = (type) => {
   return map[type] || 'info'
 }
 
-// ==================== 新增/编辑 ====================
+// ====== 新增，编辑组件 ============
 const drawerVisible = ref(false)
 const drawerTitle = ref('')
 const formRef = ref()
@@ -126,133 +243,16 @@ const onSubmit = async () => {
 
 // ==================== 删除 ====================
 const onDelete = async (row) => {
-  await ElMessageBox.confirm('确认删除该菜单？删除后角色关联也会移除。', '提示', { type: 'warning' })
+  await ElMessageBox.confirm('确认删除该菜单？', '提示', { type: 'warning' })
   await menuDeleteService(row.id)
   ElMessage.success('删除成功')
   getTree()
 }
 </script>
 
-<template>
-  <page-container title="菜单管理">
-    <template #extra>
-      <PinkButton v-hasPermi="['system:menu:add']" :icon="Plus" @click="onAdd(null)">新增菜单</PinkButton>
-    </template>
 
-    <!-- 菜单树表格 -->
-    <el-table
-      :data="menuTree"
-      v-loading="loading"
-      border
-      row-key="id"
-      default-expand-all
-      :tree-props="{ children: 'children' }"
-    >
-      <el-table-column label="菜单名称" prop="menu_name" min-width="200">
-        <template #default="{ row }">
-          <el-icon v-if="row.icon && row.icon !== '#'" style="margin-right: 6px">
-            <component :is="row.icon" />
-          </el-icon>
-          {{ row.menu_name }}
-        </template>
-      </el-table-column>
-      <el-table-column label="类型" width="80" align="center">
-        <template #default="{ row }">
-          <el-tag :type="menuTypeTag(row.menu_type)" size="small">{{ menuTypeText(row.menu_type) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="路由地址" prop="path" min-width="180" show-overflow-tooltip />
-      <el-table-column label="组件路径" prop="component" min-width="180" show-overflow-tooltip />
-      <el-table-column label="权限标识" prop="perms" min-width="150" show-overflow-tooltip />
-      <el-table-column label="排序" prop="sort" width="80" align="center" />
-      <el-table-column label="显示" width="80" align="center">
-        <template #default="{ row }">
-          <el-tag :type="row.visible === 1 ? 'success' : 'info'" size="small">
-            {{ row.visible === 1 ? '显示' : '隐藏' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="220" fixed="right">
-        <template #default="{ row }">
-          <span
-            v-if="row.menu_type !== 'F'"
-            v-hasPermi="['system:menu:add']"
-            class="link-btn primary"
-            @click="onAdd(row)"
-          ><el-icon><Plus /></el-icon>新增</span>
-          <span
-            v-hasPermi="['system:menu:edit']"
-            class="link-btn success"
-            @click="onEdit(row)"
-          ><el-icon><Edit /></el-icon>编辑</span>
-          <span
-            v-hasPermi="['system:menu:delete']"
-            class="link-btn danger"
-            @click="onDelete(row)"
-          ><el-icon><Delete /></el-icon>删除</span>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <!-- 新增/编辑抽屉 -->
-    <el-drawer v-model="drawerVisible" :title="drawerTitle" direction="rtl" size="45%">
-      <el-form :model="formModel" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="上级菜单">
-          <el-select v-model="formModel.parent_id" style="width: 100%">
-            <el-option
-              v-for="opt in parentOptions"
-              :key="opt.value"
-              :label="opt.label"
-              :value="opt.value"
-              :disabled="opt.menu_type === 'C' && formModel.menu_type === 'M'"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="菜单类型" prop="menu_type">
-          <el-radio-group v-model="formModel.menu_type">
-            <el-radio v-for="opt in menuTypeOptions" :key="opt.value" :value="opt.value">
-              {{ opt.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="菜单名称" prop="menu_name">
-          <el-input v-model="formModel.menu_name" placeholder="请输入菜单名称" />
-        </el-form-item>
-        <el-form-item v-if="formModel.menu_type !== 'F'" label="路由地址">
-          <el-input v-model="formModel.path" placeholder="如 /video/manage" />
-        </el-form-item>
-        <el-form-item v-if="formModel.menu_type === 'C'" label="组件路径">
-          <el-input v-model="formModel.component" placeholder="如 video/VideoManage" />
-        </el-form-item>
-        <el-form-item label="权限标识">
-          <el-input v-model="formModel.perms" placeholder="如 system:role:list" />
-        </el-form-item>
-        <el-form-item v-if="formModel.menu_type !== 'F'" label="图标">
-          <el-input v-model="formModel.icon" placeholder="如 Setting，# 表示无图标" />
-        </el-form-item>
-        <el-form-item label="显示排序">
-          <el-input-number v-model="formModel.sort" :min="0" />
-        </el-form-item>
-        <el-form-item label="是否显示">
-          <el-radio-group v-model="formModel.visible">
-            <el-radio :value="1">显示</el-radio>
-            <el-radio :value="0">隐藏</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="formModel.remark" type="textarea" :rows="2" />
-        </el-form-item>
-        <el-form-item>
-          <PinkButton @click="onSubmit">确定</PinkButton>
-          <el-button @click="drawerVisible = false">取消</el-button>
-        </el-form-item>
-      </el-form>
-    </el-drawer>
-  </page-container>
-</template>
 
 <style lang="scss" scoped>
-/* 用 span 模拟 el-button link 样式 */
 .link-btn {
   display: inline-flex;
   align-items: center;

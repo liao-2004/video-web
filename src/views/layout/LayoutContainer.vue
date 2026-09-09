@@ -1,3 +1,81 @@
+<template>
+  <el-container class="layout-container">
+    <el-aside width="200px">
+      <div class="el-aside__logo"></div>
+      <el-menu
+        active-text-color="rgb(251, 114, 153)"
+        :default-active="$route.path"
+        :text-color="menuTextColor"
+        :background-color="'transparent'"
+        router
+      >
+      
+        <template v-for="route in menuList" :key="route.path">
+          <el-sub-menu v-if="hasChildren(route)" :index="route.path">
+            <template #title>
+              <el-icon><component :is="getIcon(route.meta?.icon)" /></el-icon>
+              <span>{{ route.meta?.title }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in route.children"
+              :key="child.path"
+              :index="child.path"
+            >
+              <el-icon><component :is="getIcon(child.meta?.icon)" /></el-icon>
+              <span>{{ child.meta?.title }}</span>
+            </el-menu-item>
+          </el-sub-menu>
+
+          <!-- 无子菜单渲染 -->
+          <el-menu-item v-else :index="route.path">
+            <el-icon><component :is="getIcon(route.meta?.icon)" /></el-icon>
+            <span>{{ route.meta?.title }}</span>
+          </el-menu-item>
+        </template>
+      </el-menu>
+    </el-aside>
+    <el-container>
+      <el-header>
+        <div>
+          {{ userStore.user.role?.id === 1 ? '管理员' : '用户' }}：<strong>{{
+            userStore.user.nickname || userStore.user.username
+          }}</strong>
+        </div>
+        <div class="header-right">
+          <!-- 主题 -->
+          <el-switch
+            v-model="isDark"
+            :active-action-icon="Moon"
+            :inactive-action-icon="Sunny"
+            inline-prompt
+            style="--el-switch-on-color: #2c2e36; --el-switch-off-color: #fb7299"
+          />
+          <el-dropdown placement="bottom-end" @command="handleCommand">
+            <span class="el-dropdown__box">
+              <el-avatar :src="userStore.user.user_pic || avatar" />
+              <el-icon><CaretBottom /></el-icon>
+            </span>
+
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="profile" :icon="User">基本资料</el-dropdown-item>
+                <el-dropdown-item command="avatar" :icon="Crop">更换头像</el-dropdown-item>
+                <el-dropdown-item command="password" :icon="EditPen">重置密码</el-dropdown-item>
+                <el-dropdown-item command="logout" :icon="SwitchButton">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </el-header>
+      <el-main>
+        <div class="body">
+           <router-view></router-view>
+        </div>
+      </el-main>
+      <el-footer>C端bili视频管理模拟网站 ©2026 </el-footer>
+    </el-container>
+  </el-container>
+</template>
 <script setup>
 import {
   Management,
@@ -79,93 +157,6 @@ const handleCommand = async (key) => {
 }
 </script>
 
-<template>
-  <el-container class="layout-container">
-    <el-aside width="200px">
-      <div class="el-aside__logo"></div>
-      <el-menu
-        active-text-color="rgb(251, 114, 153)"
-        :default-active="$route.path"
-        :text-color="menuTextColor"
-        :background-color="'transparent'"
-        router
-      >
-        <!-- 动态渲染菜单：从 permissionStore.dynamicRoutes 生成 -->
-        <template v-for="route in menuList" :key="route.path">
-          <!-- 目录类型（有子菜单） -->
-          <el-sub-menu v-if="hasChildren(route)" :index="route.path">
-            <template #title>
-              <el-icon><component :is="getIcon(route.meta?.icon)" /></el-icon>
-              <span>{{ route.meta?.title }}</span>
-            </template>
-            <el-menu-item
-              v-for="child in route.children"
-              :key="child.path"
-              :index="child.path"
-            >
-              <el-icon><component :is="getIcon(child.meta?.icon)" /></el-icon>
-              <span>{{ child.meta?.title }}</span>
-            </el-menu-item>
-          </el-sub-menu>
-
-          <!-- 菜单类型（无子菜单） -->
-          <el-menu-item v-else :index="route.path">
-            <el-icon><component :is="getIcon(route.meta?.icon)" /></el-icon>
-            <span>{{ route.meta?.title }}</span>
-          </el-menu-item>
-        </template>
-      </el-menu>
-    </el-aside>
-    <el-container>
-      <el-header>
-        <div>
-          {{ userStore.user.role?.id === 1 ? '管理员' : '用户' }}：<strong>{{
-            userStore.user.nickname || userStore.user.username
-          }}</strong>
-        </div>
-        <div class="header-right">
-          <!-- 主题切换：亮色 / 黑夜 -->
-          <el-switch
-            v-model="isDark"
-            :active-action-icon="Moon"
-            :inactive-action-icon="Sunny"
-            inline-prompt
-            style="--el-switch-on-color: #2c2e36; --el-switch-off-color: #fb7299"
-          />
-          <el-dropdown placement="bottom-end" @command="handleCommand">
-            <span class="el-dropdown__box">
-              <el-avatar :src="userStore.user.user_pic || avatar" />
-              <el-icon><CaretBottom /></el-icon>
-            </span>
-
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile" :icon="User"
-                  >基本资料</el-dropdown-item
-                >
-                <el-dropdown-item command="avatar" :icon="Crop"
-                  >更换头像</el-dropdown-item
-                >
-                <el-dropdown-item command="password" :icon="EditPen"
-                  >重置密码</el-dropdown-item
-                >
-                <el-dropdown-item command="logout" :icon="SwitchButton"
-                  >退出登录</el-dropdown-item
-                >
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
-      </el-header>
-      <el-main>
-        <div class="body">
-           <router-view></router-view>
-        </div>
-      </el-main>
-      <el-footer>C端bili视频管理模拟网站 ©2026 </el-footer>
-    </el-container>
-  </el-container>
-</template>
 
 <style lang="scss" scoped>
 .layout-container {

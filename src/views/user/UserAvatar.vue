@@ -1,38 +1,4 @@
-<script setup>
-import { ref } from 'vue'
-import { Plus, Upload, Camera } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores'
-import { userUpdateAvatarService } from '@/api/user'
-const userStore = useUserStore()
-const imgUrl = ref(userStore.user.user_pic)
-const imgFile = ref()
-const uploadRef = ref()
-const onSelectFile = (uploadFile) => {
-  // 基于 FileReader 读取图片做预览
-  const reader = new FileReader()
-  reader.readAsDataURL(uploadFile.raw)
-  reader.onload = () => {
-    imgUrl.value = reader.result
-    imgFile.value=uploadFile.raw
-  }
-}
-
-const onUpdateAvatar = async () => {
-  // 发送请求更新头像
-  const formFile= new FormData()
-  formFile.append('avatar', imgFile.value)
-  if (!formFile.get('avatar').uid) {
-    ElMessage.warning('请先选择头像！')
-    return
-  }
-  await userUpdateAvatarService(formFile)
-  // userStore 重新渲染
-  await userStore.getUser()
-  // 提示用户
-  ElMessage.success('头像更新成功')
-}
-</script>
-
+<!-- 头像 -->
 <template>
   <page-container title="更换头像">
     <div class="update_img">
@@ -56,7 +22,7 @@ const onUpdateAvatar = async () => {
         </div>
       </el-upload>
 
-      <p class="avatar-tip">支持 jpg / png 格式，建议使用正方形图片</p>
+      <p class="avatar-tip">请更换头像</p>
 
     <div class="op-btns">
       <PinkButton
@@ -75,7 +41,38 @@ const onUpdateAvatar = async () => {
     </div>
     </div>
   </page-container>
-</template>
+</template><script setup>
+import { ref } from 'vue'
+import { Plus, Upload, Camera } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores'
+import { userUpdateAvatarService } from '@/api/user'
+const userStore = useUserStore()
+const imgUrl = ref(userStore.user.user_pic)
+const imgFile = ref()
+const uploadRef = ref()
+const onSelectFile = (uploadFile) => {
+  // 后端那回头像，进行浏览
+  const reader = new FileReader()
+  reader.readAsDataURL(uploadFile.raw)
+  reader.onload = () => {
+    imgUrl.value = reader.result
+    imgFile.value=uploadFile.raw
+  }
+}
+//头像更新接口
+const onUpdateAvatar = async () => {
+  const formFile= new FormData()
+  formFile.append('avatar', imgFile.value)
+  if (!formFile.get('avatar').uid) {
+    ElMessage.warning('请先选择头像！')
+    return
+  }
+  await userUpdateAvatarService(formFile)
+  await userStore.getUser()
+  ElMessage.success('头像更新成功')
+}
+</script>
+
 
 <style lang="scss" scoped>
 .update_img {
@@ -86,7 +83,6 @@ const onUpdateAvatar = async () => {
   min-height: 70vh;
 }
 
-/* 去掉 el-upload 默认外框，让圆形头像本身做容器 */
 .avatar-uploader :deep(.el-upload) {
   border: none;
   border-radius: 50%;
@@ -134,7 +130,6 @@ const onUpdateAvatar = async () => {
   }
 }
 
-/* 悬浮遮罩：提示点击更换 */
 .avatar-mask {
   position: absolute;
   inset: 0;

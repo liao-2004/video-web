@@ -1,5 +1,4 @@
-// 按钮级权限指令 v-hasPermi
-// 用法：v-hasPermi="['video:add']" 或 v-hasPermi="'video:add'"
+//获取权限
 import { usePermissionStore } from '@/stores'
 
 export default {
@@ -19,7 +18,6 @@ function checkPermission(el, binding) {
   const hasPermission = permissionStore.hasPermi(value)
 
   if (!hasPermission) {
-    // 没有权限，移除元素
     if (el.parentNode) {
       el.parentNode.removeChild(el)
     } else {

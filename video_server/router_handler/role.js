@@ -1,7 +1,6 @@
-// 角色管理处理函数
+
 const db = require('../db/index')
 
-// 获取角色列表
 exports.getRoleList = (req, res) => {
   const { pagenum = 1, pagesize = 10, role_name, status } = req.query
   const offset = (Number(pagenum) - 1) * Number(pagesize)
@@ -28,7 +27,6 @@ exports.getRoleList = (req, res) => {
   })
 }
 
-// 获取所有角色（下拉选择用）
 exports.getAllRoles = (req, res) => {
   const sql = 'SELECT id, role_name, role_key FROM bili_role WHERE status = 1 ORDER BY sort'
   db.query(sql, (err, results) => {
@@ -37,13 +35,11 @@ exports.getAllRoles = (req, res) => {
   })
 }
 
-// 获取角色详情
 exports.getRoleById = (req, res) => {
   const sql = 'SELECT * FROM bili_role WHERE id = ?'
   db.query(sql, req.query.id, (err, results) => {
     if (err) return res.cc(err)
     if (results.length !== 1) return res.cc('角色不存在')
-    // 查询角色关联的菜单ID
     const menuSql = 'SELECT menu_id FROM bili_role_menu WHERE role_id = ?'
     db.query(menuSql, req.query.id, (err2, menuResults) => {
       if (err2) return res.cc(err2)
@@ -53,12 +49,10 @@ exports.getRoleById = (req, res) => {
   })
 }
 
-// 新增角色
 exports.addRole = (req, res) => {
   const { role_name, role_key, sort = 0, status = 1, remark = '' } = req.body
   if (!role_name || !role_key) return res.cc('角色名称和权限字符不能为空')
 
-  // 检查角色名是否重复
   const checkSql = 'SELECT id FROM bili_role WHERE role_name = ?'
   db.query(checkSql, role_name, (err, results) => {
     if (err) return res.cc(err)
@@ -73,7 +67,6 @@ exports.addRole = (req, res) => {
   })
 }
 
-// 编辑角色
 exports.updateRole = (req, res) => {
   const { id, role_name, role_key, sort, status, remark } = req.body
   if (!id) return res.cc('角色ID不能为空')
@@ -86,23 +79,19 @@ exports.updateRole = (req, res) => {
   })
 }
 
-// 删除角色
 exports.deleteRole = (req, res) => {
   const id = req.query.id
   if (id === 1) return res.cc('管理员角色不可删除')
 
-  // 检查是否有用户使用该角色
   const checkSql = 'SELECT COUNT(*) as cnt FROM bilibili_user WHERE role = ?'
   db.query(checkSql, id, (err, results) => {
     if (err) return res.cc(err)
     if (results[0].cnt > 0) return res.cc('该角色下还有用户，无法删除')
 
-    // 删除角色
     const delSql = 'DELETE FROM bili_role WHERE id = ?'
     db.query(delSql, id, (err2, results2) => {
       if (err2) return res.cc(err2)
       if (results2.affectedRows !== 1) return res.cc('删除角色失败')
-      // 删除角色菜单关联
       const delRelSql = 'DELETE FROM bili_role_menu WHERE role_id = ?'
       db.query(delRelSql, id, () => {
         res.cc('删除角色成功', 0)
@@ -111,16 +100,13 @@ exports.deleteRole = (req, res) => {
   })
 }
 
-// 角色分配菜单
 exports.assignMenus = (req, res) => {
   const { role_id, menu_ids } = req.body
   if (!role_id || !Array.isArray(menu_ids)) return res.cc('参数错误')
 
-  // 先删除旧关联
   const delSql = 'DELETE FROM bili_role_menu WHERE role_id = ?'
   db.query(delSql, role_id, (err) => {
     if (err) return res.cc(err)
-    // 批量插入新关联
     if (menu_ids.length === 0) {
       return res.cc('分配菜单成功', 0)
     }

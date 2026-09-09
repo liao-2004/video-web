@@ -1,3 +1,26 @@
+<!-- 基本信息 -->
+<template>
+  <page-container title="基本资料">
+    <!-- 表单部分 -->
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="600px" :style="{width:'1080px'}">
+      <el-form-item label="登录名称">
+        <el-input v-model="form.username" disabled></el-input>
+      </el-form-item>
+      <el-form-item label="用户昵称" prop="nickname">
+        <el-input v-model="form.nickname"></el-input>
+      </el-form-item>
+      <el-form-item label="用户邮箱" prop="email">
+        <el-input v-model="form.email"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <PinkButton @click="submitForm" :style="{marginLeft:'180px'}">提交修改</PinkButton>
+      </el-form-item>
+    </el-form>
+  </page-container>
+</template>
+
+
+
 <script setup>
 import PageContainer from '@/components/PageContainer.vue'
 import { ref } from 'vue'
@@ -6,7 +29,6 @@ import { userUpdateInfoService } from '@/api/user'
 
 const formRef = ref()
 
-// 是在使用仓库中数据的初始值 (无需响应式) 解构无问题
 const {
   user: { email, id, nickname, username },
   getUser
@@ -38,33 +60,11 @@ const rules = ref({
   ]
 })
 
-const submitForm = async () => {
-  // 等待校验结果
-  await formRef.value.validate()
   // 提交修改
+const submitForm = async () => {
+  await formRef.value.validate()
   await userUpdateInfoService(form.value)
-  // 通知 user 模块，进行数据的更新
   getUser()
-  // 提示用户
   ElMessage.success('修改成功')
 }
 </script>
-<template>
-  <page-container title="基本资料">
-    <!-- 表单部分 -->
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="600px" :style="{width:'1080px'}">
-      <el-form-item label="登录名称">
-        <el-input v-model="form.username" disabled></el-input>
-      </el-form-item>
-      <el-form-item label="用户昵称" prop="nickname">
-        <el-input v-model="form.nickname"></el-input>
-      </el-form-item>
-      <el-form-item label="用户邮箱" prop="email">
-        <el-input v-model="form.email"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <PinkButton @click="submitForm" :style="{marginLeft:'180px'}">提交修改</PinkButton>
-      </el-form-item>
-    </el-form>
-  </page-container>
-</template>

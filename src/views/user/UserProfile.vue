@@ -1,6 +1,6 @@
 <!-- 基本信息 -->
 <template>
-  <page-container title="基本资料">
+  <page-container title="基本资料" style="height: 85vh;">
     <!-- 表单部分 -->
     <el-form ref="formRef" :model="form" :rules="rules" label-width="600px" :style="{width:'1080px'}">
       <el-form-item label="登录名称">

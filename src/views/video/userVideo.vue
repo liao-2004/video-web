@@ -1,3 +1,60 @@
+
+<template>
+  <div class="body">
+     <div class="title-box">
+       <div class="title">bili视频</div>
+       <div class="cate">
+         <div
+           v-for="i in channelList"
+           :key="i.Id"
+           :class="[newCate === i.Id ? 'newCate' : 'oldCate', 'cate-obj']"
+           @click="cateListFun(i.Id)"
+         >
+           <p>{{ i.name }}</p>
+         </div>
+       </div>
+     </div>
+
+     <div class="list-wrap">
+       <ul
+         ref="listRef"
+         v-infinite-scroll="load"
+         :infinite-scroll-disabled="loading || finished"
+         :infinite-scroll-distance="50"
+         class="infinite-list"
+       >
+         <div class="card-grid">
+           <div
+             v-for="(item, idx) in video_data"
+             :key="item.id ?? idx"
+             class="card"
+             @click="goWatch(item)"
+           >
+             <div class="crad-img-box">
+               <img class="card-img" :src="baseURL + item.cover_img" alt="" />
+               <div class="play-mask">
+               </div>
+             </div>
+             <div class="card-font">
+               <p class="card-title">{{ item.title }}</p>
+               <p class="card-content">{{ item.content }}</p>
+               <p class="card-author">
+                 UP：{{ item.nickname || item.username || '匿名' }}
+               </p>
+             </div>
+           </div>
+          </div>
+         <p v-if="loading" class="tip">加载中...</p>
+         <p v-if="finished && video_data.length" class="tip">没有更多了</p>
+         <p v-if="finished && !video_data.length" class="tip">暂无数据</p>
+       </ul>
+     </div>
+   </div>
+ </template>
+
+
+
+
 <script setup>
     import { ref, nextTick } from 'vue'
     import { useRouter } from 'vue-router'
@@ -92,65 +149,11 @@
     }
     </script>
 
-    <template>
-      <div class="body">
-        <div class="title-box">
-          <div class="title">bili视频</div>
-          <div class="cate">
-            <div
-              v-for="i in channelList"
-              :key="i.Id"
-              :class="[newCate === i.Id ? 'newCate' : 'oldCate', 'cate-obj']"
-              @click="cateListFun(i.Id)"
-            >
-              <p>{{ i.name }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="list-wrap">
-          <ul
-            ref="listRef"
-            v-infinite-scroll="load"
-            :infinite-scroll-disabled="loading || finished"
-            :infinite-scroll-distance="50"
-            class="infinite-list"
-          >
-            <div class="card-grid">
-              <div
-                v-for="(item, idx) in video_data"
-                :key="item.id ?? idx"
-                class="card"
-                @click="goWatch(item)"
-              >
-                <div class="crad-img-box">
-                  <img class="card-img" :src="baseURL + item.cover_img" alt="" />
-                  <div class="play-mask">
-                  </div>
-                </div>
-                <div class="card-font">
-                  <p class="card-title">{{ item.title }}</p>
-                  <p class="card-content">{{ item.content }}</p>
-                  <p class="card-author">
-                    UP：{{ item.nickname || item.username || '匿名' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <p v-if="loading" class="tip">加载中...</p>
-            <p v-if="finished && video_data.length" class="tip">没有更多了</p>
-            <p v-if="finished && !video_data.length" class="tip">暂无数据</p>
-          </ul>
-        </div>
-      </div>
-    </template>
-
     <style scoped>
     .body {
       box-shadow: var(--shadow-card);
       border-radius: var(--radius-md);
-      height: 80vh;
+      height: 85vh;
       background-color: var(--app-surface);
     }
     .title-box {

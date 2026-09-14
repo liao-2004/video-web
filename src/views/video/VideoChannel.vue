@@ -1,11 +1,11 @@
 
 <template>
-  <page-container title="视频分类">
+  <page-container title="视频分类" style="height: 85vh;">
     <template #extra>
       <el-button @click="onAddChannel">添加分类</el-button>
     </template>
 
-    <el-table v-loading="loading" :data="channelList" style="width: 100%">
+    <el-table v-loading="loading" :data="channelList" style="width: 100%;height: 680px;">
       <el-table-column type="index" label="序号" width="100"></el-table-column>
       <el-table-column prop="name" label="分类名称"></el-table-column>
       <el-table-column prop="alias" label="分类别名"></el-table-column>
@@ -57,7 +57,7 @@ getChannelList()
 
 const onDelChannel = async (row) => {
   await ElMessageBox.confirm('你确认要删除该分类么', '温馨提示', {
-    type: 'warning',
+    // type: 'warning',
     confirmButtonText: '确认',
     cancelButtonText: '取消'
   })

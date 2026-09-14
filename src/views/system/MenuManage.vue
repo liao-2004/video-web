@@ -1,6 +1,6 @@
 <!-- 菜单管理 -->
 <template>
-  <page-container title="菜单管理">
+  <page-container title="菜单管理" style="height: 85vh;">
     <template #extra>
       <PinkButton v-hasPermi="['system:menu:add']" :icon="Plus" @click="onAdd(null)">新增菜单</PinkButton>
     </template>
@@ -13,6 +13,7 @@
       row-key="id"
       default-expand-all
       :tree-props="{ children: 'children' }"
+      style="height: 680px;"
     >
       <el-table-column label="菜单名称" prop="menu_name" min-width="200">
         <template #default="{ row }">
@@ -214,11 +215,22 @@ const onAdd = (row) => {
   parentOptions.value = [{ value: 0, label: '顶级目录' }, ...buildParentOptions(menuTree.value)]
   drawerVisible.value = true
 }
-
+//获取时间
+const getNowDateTime = () => {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const h = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  const s = String(d.getSeconds()).padStart(2, '0')
+  return `${y}-${m}-${day} ${h}:${m}:${s}`
+}
+//后端返回的数据
 const onEdit = async (row) => {
   drawerTitle.value = '编辑菜单'
   const res = await menuGetInfoService(row.id)
-  formModel.value = { ...res.data.data }
+  formModel.value = { ...res.data.data,create_time: getNowDateTime() }
   parentOptions.value = [{ value: 0, label: '顶级目录' }, ...buildParentOptions(menuTree.value)]
   drawerVisible.value = true
 }
@@ -231,6 +243,7 @@ const onSubmit = async () => {
     formModel.value.component = ''
   }
   if (formModel.value.id) {
+    console.log(2,formModel.value)
     await menuUpdateService(formModel.value)
     ElMessage.success('编辑成功')
   } else {

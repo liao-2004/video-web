@@ -3,7 +3,7 @@
 
 
 <template>
-  <page-container title="角色管理">
+  <page-container title="角色管理" style="height: 85vh;">
     <template #extra>
       <PinkButton v-hasPermi="['system:role:add']" :icon="Plus" @click="onAdd">新增角色</PinkButton>
     </template>
@@ -32,7 +32,7 @@
 
 
 
-    <el-table :data="roleList" v-loading="loading" border>
+    <el-table :data="roleList" v-loading="loading" border style="height: 600px;">
       <el-table-column label="角色ID" prop="id" width="80" />
       <el-table-column label="角色名称" prop="role_name" />
       <el-table-column label="权限字符" prop="role_key" />

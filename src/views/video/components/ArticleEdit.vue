@@ -57,7 +57,7 @@
               <template #default="{ percentage }">
                 <span class="chunk-progress-text">
                   {{ percentage }}%
-                  <span class="chunk-count">（{{ uploadedChunks }}/{{ totalChunks }} 片）</span>
+                  <span class="chunk-count">（{{ (uploadedChunks/totalChunks*100).toFixed(2) }}%）</span>
                 </span>
               </template>
             </el-progress>
@@ -68,26 +68,7 @@
               </el-tag>
               <el-tag v-else-if="chunkMerging" type="warning" size="small">正在合并分片...</el-tag>
               <el-tag v-else-if="chunkPaused" type="info" size="small">已暂停</el-tag>
-              <el-tag v-else type="primary" size="small">分片上传中（并发 {{ CONCURRENCY }}）</el-tag>
-            </div>
-
-            <div class="chunk-actions">
-              <el-button
-                v-if="!chunkPaused && !chunkMerging"
-                type="warning"
-                size="small"
-                @click="pauseChunkUpload"
-              >
-                暂停上传
-              </el-button>
-              <el-button
-                v-if="chunkPaused"
-                type="primary"
-                size="small"
-                @click="resumeChunkUpload"
-              >
-                继续上传
-              </el-button>
+              <el-tag v-else type="primary" size="small">分片上传中...</el-tag>
             </div>
 
             <el-alert

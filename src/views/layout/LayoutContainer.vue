@@ -35,7 +35,7 @@
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header>
+      <el-header :style="{height:'5vh'}">
         <div>
           {{ userStore.user.role?.id === 1 ? '管理员' : '用户' }}：<strong>{{
             userStore.user.nickname || userStore.user.username
@@ -72,7 +72,7 @@
            <router-view></router-view>
         </div>
       </el-main>
-      <el-footer>C端bili视频管理模拟网站 ©2026 </el-footer>
+      <el-footer :style="{height:'5vh'}">C端bili视频管理模拟网站 ©2026 </el-footer>
     </el-container>
   </el-container>
 </template>

@@ -110,10 +110,12 @@ body {
 .el-button {
   border-radius: var(--radius-sm);
   font-weight: 500;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, 
+  box-shadow 0.2s ease, 
+  opacity 0.2s ease;
 }
 .el-button:hover {
-  transform: translateY(-1px);
+  // transform: translateY(-1px);
 }
 /* 去掉按钮聚焦/点击时的蓝色轮廓 */
 .el-button:focus,
@@ -128,7 +130,7 @@ body {
 }
 .el-button--primary:hover {
   background: var(--bili-gradient);
-  box-shadow: 0 6px 16px rgba(251, 114, 153, 0.4);
+  // box-shadow: 0 6px 16px rgba(251, 114, 153, 0.4);
   opacity: 0.95;
 }
 

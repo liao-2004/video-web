@@ -63,12 +63,12 @@ defineProps({
     background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .pink-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(251, 114, 153, 0.4);
+  /* transform: translateY(-1px); */
+  /* box-shadow: 0 6px 16px rgba(251, 114, 153, 0.4); */
   opacity: 0.95;
 }
 .pink-btn:active {
-  transform: translateY(0);
+  /* transform: translateY(0); */
 }
 .pink-btn:focus,
 .pink-btn:focus-visible {

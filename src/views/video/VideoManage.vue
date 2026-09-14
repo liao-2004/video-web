@@ -1,11 +1,11 @@
 <!-- 添加视频 -->
 <template>
-  <page-container title="视频管理">
+  <page-container title="视频管理" style="height: 85vh;">
     <template #extra>
       <PinkButton @click="onAddArticle">添加视频</PinkButton>
     </template>
 
-    <el-form inline>
+    <el-form inline >
       <el-form-item label="视频分类:">
         <channel-select v-model="params.cate_id" :style="{width:'100px'}"></channel-select>
 
@@ -22,7 +22,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="articleList" v-loading="loading">
+    <el-table :data="articleList" v-loading="loading" style="height: 62vh;">
       <el-table-column label="视频标题" prop="title">
         <template #default="{ row }">
           <el-link type="primary" :underline="false">{{ row.title }}</el-link>

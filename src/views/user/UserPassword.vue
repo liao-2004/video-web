@@ -1,8 +1,8 @@
 <!-- 修改密码 -->
 <template>
-  <page-container title="修改密码">
+  <page-container title="修改密码" style="height: 85vh;">
     <el-row> 
-      <el-col :span="12" :offset="6" style="height: '70vh';">
+      <el-col :span="12" :offset="6" style="height: 670px;">
         <el-form
           ref="formRef"
           :model="pwdForm"

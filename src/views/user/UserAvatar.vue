@@ -1,6 +1,6 @@
 <!-- 头像 -->
 <template>
-  <page-container title="更换头像">
+  <page-container title="更换头像" style="height: 85vh;">
     <div class="update_img">
       <el-upload
         ref="uploadRef"

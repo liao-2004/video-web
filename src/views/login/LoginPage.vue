@@ -7,7 +7,7 @@
       <div class="brand-panel">
         <div class="brand-inner">
           <div class="illo"></div>
-          <h2>欢迎来到视频管理平台</h2>
+          <h2>欢迎来到bili模拟页面管理平台</h2>
         </div>
       </div>
 

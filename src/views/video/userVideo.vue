@@ -105,7 +105,6 @@
         const list = res.data.data
         total.value = res.data.total
         video_data.value.push(...list)
-
         // 判断是否加载完
         if (list.length === 0 || video_data.value.length >= total.value) {
           finished.value = true

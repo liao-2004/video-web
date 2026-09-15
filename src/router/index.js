@@ -56,7 +56,11 @@ router.beforeEach(async (to, from, next) => {
         })
         return next({ ...to, replace: true })
       } catch (err) {
-        console.error('生成动态路由失败:', err)
+        const useStore = useUserStore()
+        userStore.removeToken()
+        userStore.setUser({})
+        permissionStore.resetPermission()
+        console.error('生成动态路由失败:',useStore.token, err)
         return next('/login')
       }
     }

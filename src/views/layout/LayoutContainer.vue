@@ -132,7 +132,7 @@ const hasChildren = (route) => {
   return route.children && route.children.length > 0
 }
 
-// 获取图标组件
+// 获取图标组件0000
 const getIcon = (iconName) => {
   return iconMap[iconName] || HomeFilled
 }
